@@ -10,6 +10,9 @@ class PyMavlink():
         self.bootTime = time.time()
         self.rcValue = [1500] * 8
 
+    def reboot(self):
+        self.master.reboot_autopilot()
+
     def armDisarm(self):
         self.master.mav.command_long_send(
             self.master.target_system,
@@ -57,6 +60,14 @@ class PyMavlink():
             *self.rcValue
         )
 
+    def getDataMessage(self, messageType):
+        while True:
+            msg = self.master.recv_match()
+            if not msg:
+                continue
+            if msg.get_type() == messageType:
+                print(msg)
+                
     def setDepth(self, depth):
         self.master.mav.set_position_target_global_int_send(
             int(1e3 * (time.time() - self.bootTime)),
