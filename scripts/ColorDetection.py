@@ -20,17 +20,18 @@ def setBoundingBox(cnts, image):
         ((x, y), radius) = cv2.minEnclosingCircle(centroid)
 
         if radius > 10:
+            cv2.circle(image, (int(x), int(y)), 2, (0, 255, 0), 2)
             cv2.circle(image, (int(x), int(y)), int(radius), (0, 255, 0), 2)
             return [x, y]
         else:
-            return None
+            return 'None'
         
-    return None
+    return 'None'
 
 def colorDetection(capture):
     pub = rospy.Publisher('coordinate', String, queue_size=10)
     rospy.init_node('publisher_coordinate', anonymous=True)
-    rate = rospy.Rate(30)
+    rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
         _, frame = capture.read()
@@ -46,10 +47,15 @@ def colorDetection(capture):
             contours = setContour(thresh)
 
             coordinate = setBoundingBox(contours, frame)
+            
+            if coordinate != 'None':
+                str_coordinate = ' '.join(map(str, coordinate))
+            else:
+                str_coordinate = coordinate
+            
 
-            str_coordinate = ' '.join(map(str, coordinate))
-
-            cv2.circle(frame, (320, 180), 2, (255, 0, 0), 3)
+            cv2.circle(frame, (320, 240), 2, (255, 0, 0), 3)
+            cv2.circle(frame, (320, 240), 50, (0, 0, 255), 1)
             
             cv2.imshow('Frame', frame)
             cv2.imshow('Threshold', thresh)
