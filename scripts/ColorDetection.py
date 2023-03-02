@@ -30,11 +30,10 @@ def setBoundingBox(cnts, image):
 def colorDetection(capture):
     pub = rospy.Publisher('coordinate', String, queue_size=10)
     rospy.init_node('publisher_coordinate', anonymous=True)
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
-        ret, frame = capture.read()
-        frame = cv2.resize(frame, (640, 360), fx=0, fy=0, interpolation=cv2.INTER_AREA)
+        _, frame = capture.read()
 
         try:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -51,7 +50,7 @@ def colorDetection(capture):
             str_coordinate = ' '.join(map(str, coordinate))
 
             cv2.circle(frame, (320, 180), 2, (255, 0, 0), 3)
-
+            
             cv2.imshow('Frame', frame)
             cv2.imshow('Threshold', thresh)
 
@@ -70,6 +69,8 @@ def colorDetection(capture):
 
 if __name__ == '__main__':
     camera = cv2.VideoCapture(0)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
     try:
         colorDetection(camera)
