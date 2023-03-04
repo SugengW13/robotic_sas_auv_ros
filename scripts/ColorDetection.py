@@ -22,11 +22,26 @@ def setBoundingBox(cnts, image):
         if radius > 10:
             cv2.circle(image, (int(x), int(y)), 2, (0, 255, 0), 2)
             cv2.circle(image, (int(x), int(y)), int(radius), (0, 255, 0), 2)
+            cv2.line(image, (int(x), int(y)), (320, 240), (255, 0, 0), 2)
             return [x, y]
         else:
             return 'None'
         
     return 'None'
+
+def getObjectPosition(image):
+    arr = []
+    dst = cv2.Canny(image, 50, 200, None, 3)
+
+    linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
+
+    if linesP is not None:
+        for i in range(0, len(linesP)):
+            l = linesP[i][0]
+            arr.append(l[1])
+            arr.append(l[3])
+
+    return np.min(arr)
 
 def colorDetection(capture):
     pub = rospy.Publisher('coordinate', String, queue_size=10)
@@ -39,29 +54,33 @@ def colorDetection(capture):
         try:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-            lowerHsv = (0, 50, 50)
-            upperHsv = (20, 255, 255)
+            lowerHsv = (20, 130, 80)
+            upperHsv = (25, 255, 255)
 
             thresh = cv2.inRange(hsv, lowerHsv, upperHsv)
             
             contours = setContour(thresh)
 
             coordinate = setBoundingBox(contours, frame)
-            
+
+            yUpperCoordinate = getObjectPosition(thresh)
+
             if coordinate != 'None':
                 str_coordinate = ' '.join(map(str, coordinate))
             else:
                 str_coordinate = coordinate
-            
 
-            cv2.circle(frame, (320, 240), 2, (255, 0, 0), 3)
-            cv2.circle(frame, (320, 240), 50, (0, 0, 255), 1)
+            cv2.line(frame, (0, yUpperCoordinate), (640, yUpperCoordinate), (0, 0, 255), 1)
+            
+            cv2.circle(frame, (320, 240), 2, (255, 0, 0), 1)
+            cv2.circle(frame, (320, 240), 25, (0, 0, 255), 1)
+            cv2.circle(frame, (320, 240), 200, (0, 255, 0), 1)
             
             cv2.imshow('Frame', frame)
             cv2.imshow('Threshold', thresh)
 
-            rospy.loginfo(str_coordinate)
-            pub.publish(str_coordinate)
+            rospy.loginfo(str_coordinate + ' ' + str(yUpperCoordinate))
+            pub.publish(str_coordinate + ' ' + str(yUpperCoordinate))
 
             rate.sleep()
 
