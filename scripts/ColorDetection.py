@@ -1,93 +1,64 @@
 #!/usr/bin/env python
 
 import cv2
-import numpy as np
+import time
 import rospy
+from pymavlink import mavutil
 from std_msgs.msg import String
 
-def setContour(image):  
-    kernel = np.ones((5, 5), np.uint8)
-    mask = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+from ObjectDetection import HSV
+from PyMavlink import PyMavlink
 
-    contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-    
-    return contours
+master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
+# master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 
-def setBoundingBox(cnts, image):
-    if len(cnts) > 0:
-        centroid = max(cnts, key=cv2.contourArea)
-        ((x, y), radius) = cv2.minEnclosingCircle(centroid)
+master.wait_heartbeat()
 
-        if radius > 10:
-            cv2.circle(image, (int(x), int(y)), 2, (0, 255, 0), 2)
-            cv2.circle(image, (int(x), int(y)), int(radius), (0, 255, 0), 2)
-            cv2.line(image, (int(x), int(y)), (320, 240), (255, 0, 0), 2)
-            return [x, y]
-        else:
-            return 'None'
-        
-    return 'None'
-
-def getObjectPosition(image):
-    arr = []
-    dst = cv2.Canny(image, 50, 200, None, 3)
-
-    linesP = cv2.HoughLinesP(dst, 1, np.pi / 180, 50, None, 50, 10)
-
-    if linesP is not None:
-        for i in range(0, len(linesP)):
-            l = linesP[i][0]
-            arr.append(l[1])
-            arr.append(l[3])
-
-    return np.min(arr)
-
-def colorDetection(capture):
+def main(capture, rov: PyMavlink):
     pub = rospy.Publisher('coordinate', String, queue_size=10)
+
     rospy.init_node('publisher_coordinate', anonymous=True)
+    # rospy.init_node('publisher_upper_position', anonymous=True)
+    
     rate = rospy.Rate(10)
+
+    # rov.arm()
+    # time.sleep(1)
+    # rov.setDepth(-0.5)
+    # time.sleep(1)
+    # rov.setMode('ALT_HOLD')
 
     while not rospy.is_shutdown():
         _, frame = capture.read()
-
-        try:
-            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-            lowerHsv = (20, 130, 80)
-            upperHsv = (25, 255, 255)
-
-            thresh = cv2.inRange(hsv, lowerHsv, upperHsv)
+        
+        object_detection = HSV(frame, (2, 90, 40), (25, 255, 255))
+        
+        upper_position = 0
+        coordinate = object_detection.get_center()
+        upper_position = object_detection.get_upper_position()
+        
+        if coordinate is not None and upper_position is not None:
+            x, y = int(coordinate[0]), int(coordinate[1])
+            str_coordinate = ' '.join(map(str, coordinate))
             
-            contours = setContour(thresh)
+            cv2.line(frame, (0, upper_position), (640, upper_position), (0, 0, 255), 2)
+            cv2.line(frame, (x, 0), (x, 480), (0, 255, 0), 2)
 
-            coordinate = setBoundingBox(contours, frame)
+            rospy.loginfo(str_coordinate + ' ' + str(upper_position))
+            pub.publish(str_coordinate + ' ' + str(upper_position))
+        else:
+            rospy.loginfo(None)
+            pub.publish(None)
+        
+        cv2.circle(frame, (320, 240), 25, (255, 0, 0), 2)
+        cv2.line(frame, (0, 240), (640, 240), (255, 0, 0), 2)
 
-            yUpperCoordinate = getObjectPosition(thresh)
+        cv2.imshow('frame', frame)
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-            if coordinate != 'None':
-                str_coordinate = ' '.join(map(str, coordinate))
-            else:
-                str_coordinate = coordinate
-
-            cv2.line(frame, (0, yUpperCoordinate), (640, yUpperCoordinate), (0, 0, 255), 1)
-            
-            cv2.circle(frame, (320, 240), 2, (255, 0, 0), 1)
-            cv2.circle(frame, (320, 240), 25, (0, 0, 255), 1)
-            cv2.circle(frame, (320, 240), 200, (0, 255, 0), 1)
-            
-            cv2.imshow('Frame', frame)
-            cv2.imshow('Threshold', thresh)
-
-            rospy.loginfo(str_coordinate + ' ' + str(yUpperCoordinate))
-            pub.publish(str_coordinate + ' ' + str(yUpperCoordinate))
-
-            rate.sleep()
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        except:
-            continue
+        rate.sleep()
 
     frame.release()
     cv2.destroyAllWindows()
@@ -97,7 +68,9 @@ if __name__ == '__main__':
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
+    pymavlink = PyMavlink(master)
+
     try:
-        colorDetection(camera)
+        main(camera, pymavlink)
     except rospy.ROSInterruptException:
         pass
