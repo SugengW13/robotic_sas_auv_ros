@@ -4,7 +4,7 @@ import math
 from pymavlink import mavutil
 from pymavlink.quaternion import QuaternionBase
 
-class PyMavlink():
+class ROV():
     def __init__(self, master):
         self.master = master
         self.bootTime = time.time()
@@ -35,10 +35,16 @@ class PyMavlink():
         self.master.motors_disarmed_wait()
     
     def arm(self):
-        self.master.arducopter_arm()
+        test = self.master.arducopter_arm()
+
+        print(test)
+
+        return True
     
     def disarm(self):
         self.master.arducopter_disarm()
+
+        return True
 
     def setMode(self, mode):
         if mode not in self.master.mode_mapping():
@@ -67,7 +73,22 @@ class PyMavlink():
                 continue
             if msg.get_type() == messageType:
                 print(msg)
-                
+    
+    def getAllParams(self):
+        self.master.mav.param_request_list_send(
+            self.master.target_system, self.master.target_component
+        )
+
+        while True:
+            try:
+                message = self.master.recv_match(type='PARAM_VALUE', blocking=True).to_dict()
+                print('name: %s\tvalue: %d' % (message['param_id'],message['param_value']))
+            except Exception as error:
+                print(error)
+                sys.exit(0)
+
+            time.sleep(0.01)
+
     def setDepth(self, depth):
         self.master.mav.set_position_target_global_int_send(
             int(1e3 * (time.time() - self.bootTime)),
