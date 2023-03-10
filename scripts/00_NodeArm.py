@@ -6,7 +6,7 @@ from pymavlink import mavutil
 
 from PyMavlink import ROV
 
-def nodeArm(rov: ROV):
+def main(rov: ROV):
     isArm = False
 
     rov.arm()
@@ -41,6 +41,6 @@ if __name__ == '__main__':
     rov = ROV(master)
 
     try:
-        nodeArm(rov)
+        main(rov)
     except rospy.ROSInterruptException:
         pass
