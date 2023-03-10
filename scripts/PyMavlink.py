@@ -35,11 +35,7 @@ class ROV():
         self.master.motors_disarmed_wait()
     
     def arm(self):
-        test = self.master.arducopter_arm()
-
-        print(test)
-
-        return True
+        self.master.arducopter_arm()
     
     def disarm(self):
         self.master.arducopter_disarm()
