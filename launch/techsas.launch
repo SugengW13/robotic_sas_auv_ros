@@ -3,4 +3,5 @@
     <node pkg="techsas" name="node_camera" type="01_NodeCamera.py" output="screen" />
     <node pkg="techsas" name="node_depth" type="01_NodeDepth.py" output="screen" />
     <node pkg="techsas" name="node_guidance" type="02_NodeGuidance.py" output="screen" />
+    <node pkg="techsas" name="node_control_lateral" type="03_NodeControlLateral.py" output="screen" />
 </launch>
