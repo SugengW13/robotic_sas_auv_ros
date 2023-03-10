@@ -13,7 +13,7 @@ def main(rov: ROV):
 
     pub = rospy.Publisher('is_armed', Bool, queue_size=10)
     rospy.init_node('node_arm', anonymous=True)
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
         dataMessage = rov.getDataMessage('HEARTBEAT')
