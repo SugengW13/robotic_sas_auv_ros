@@ -13,7 +13,7 @@ def callback(data):
     pub.publish(0)
     
 def main():
-    rospy.init_node('node_depth', anonymous=True)
+    rospy.init_node('node_control_lateral', anonymous=True)
 
     rospy.Subscriber("coordinate_x", Float32, callback)
 

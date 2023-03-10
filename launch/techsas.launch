@@ -4,4 +4,5 @@
     <node pkg="techsas" name="node_depth" type="01_NodeDepth.py" output="screen" />
     <node pkg="techsas" name="node_guidance" type="02_NodeGuidance.py" output="screen" />
     <node pkg="techsas" name="node_control_lateral" type="03_NodeControlLateral.py" output="screen" />
+    <node pkg="techsas" name="node_control_forward" type="03_NodeControlForward.py" output="screen" />
 </launch>
