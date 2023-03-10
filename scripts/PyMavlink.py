@@ -70,9 +70,9 @@ class ROV():
         while True:
             msg = self.master.recv_match()
             if not msg:
-                continue
+                return None
             if msg.get_type() == messageType:
-                print(msg)
+                return msg
     
     def getAllParams(self):
         self.master.mav.param_request_list_send(
