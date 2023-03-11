@@ -19,6 +19,7 @@ def main():
 
     rospy.Subscriber("coordinate", String, callback)
     rospy.Subscriber("depth", Float32, callback)
+    rospy.Subscriber("position", String, callback)
 
     rospy.spin()
 
