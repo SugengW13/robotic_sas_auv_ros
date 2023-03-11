@@ -1,6 +1,7 @@
 <launch>
     <node pkg="techsas" name="node_arm" type="00_NodeArm.py" output="screen" />
-    <node pkg="techsas" name="node_camera" type="01_NodeCamera.py" output="screen" />
+    <node pkg="techsas" name="node_object_detection" type="01_NodeObjectDetection.py" output="screen" />
+    <node pkg="techsas" name="node_navigation" type="01_NodeNavigation.py" output="screen" />
     <node pkg="techsas" name="node_depth" type="01_NodeDepth.py" output="screen" />
     <node pkg="techsas" name="node_guidance" type="02_NodeGuidance.py" output="screen" />
     <node pkg="techsas" name="node_control_lateral" type="03_NodeControlLateral.py" output="screen" />
