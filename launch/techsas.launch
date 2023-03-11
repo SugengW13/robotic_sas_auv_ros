@@ -9,4 +9,6 @@
     <node pkg="techsas" name="node_gripper" type="04_NodeGripper.py" output="screen" />
     <node pkg="techsas" name="node_lateral" type="05_NodeLateral.py" output="screen" />
     <node pkg="techsas" name="node_forward" type="05_NodeForward.py" output="screen" />
+    <node pkg="techsas" name="node_surfacing" type="05_NodeSurfacing.py" output="screen" />
+    <node pkg="techsas" name="node_disarm" type="06_NodeDisarm.py" output="screen" />
 </launch>
