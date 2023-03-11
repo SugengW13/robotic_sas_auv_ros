@@ -13,7 +13,7 @@ def callback(data):
     pub.publish('Test')
     
 def main():
-    rospy.init_node('node_camera', anonymous=True)
+    rospy.init_node('node_object_detection', anonymous=True)
     rospy.Subscriber("is_armed", Bool, callback)
 
     rospy.spin()
