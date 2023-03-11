@@ -7,4 +7,6 @@
     <node pkg="techsas" name="node_control_lateral" type="03_NodeControlLateral.py" output="screen" />
     <node pkg="techsas" name="node_control_forward" type="03_NodeControlForward.py" output="screen" />
     <node pkg="techsas" name="node_gripper" type="04_NodeGripper.py" output="screen" />
+    <node pkg="techsas" name="node_lateral" type="05_NodeLateral.py" output="screen" />
+    <node pkg="techsas" name="node_forward" type="05_NodeForward.py" output="screen" />
 </launch>
