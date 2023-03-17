@@ -1,14 +1,14 @@
 <launch>
     <node pkg="techsas" name="node_arm" type="00_NodeArm.py" output="screen" />
-    <node pkg="techsas" name="node_object_detection" type="01_NodeObjectDetection.py" output="screen" />
-    <node pkg="techsas" name="node_navigation" type="01_NodeNavigation.py" output="screen" />
+    <!-- <node pkg="techsas" name="node_object_detection" type="01_NodeObjectDetection.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_navigation" type="01_NodeNavigation.py" output="screen" /> -->
     <node pkg="techsas" name="node_depth" type="01_NodeDepth.py" output="screen" />
-    <node pkg="techsas" name="node_guidance" type="02_NodeGuidance.py" output="screen" />
-    <node pkg="techsas" name="node_control_lateral" type="03_NodeControlLateral.py" output="screen" />
-    <node pkg="techsas" name="node_control_forward" type="03_NodeControlForward.py" output="screen" />
-    <node pkg="techsas" name="node_gripper" type="04_NodeGripper.py" output="screen" />
-    <node pkg="techsas" name="node_lateral" type="05_NodeLateral.py" output="screen" />
-    <node pkg="techsas" name="node_forward" type="05_NodeForward.py" output="screen" />
-    <node pkg="techsas" name="node_surfacing" type="05_NodeSurfacing.py" output="screen" />
-    <node pkg="techsas" name="node_disarm" type="06_NodeDisarm.py" output="screen" />
+    <!-- <node pkg="techsas" name="node_guidance" type="02_NodeGuidance.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_control_lateral" type="03_NodeControlLateral.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_control_forward" type="03_NodeControlForward.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_gripper" type="04_NodeGripper.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_lateral" type="05_NodeLateral.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_forward" type="05_NodeForward.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_surfacing" type="05_NodeSurfacing.py" output="screen" /> -->
+    <!-- <node pkg="techsas" name="node_disarm" type="06_NodeDisarm.py" output="screen" /> -->
 </launch>
