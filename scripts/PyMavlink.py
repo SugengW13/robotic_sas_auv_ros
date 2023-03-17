@@ -118,3 +118,29 @@ class ROV():
                 QuaternionBase([math.radians(angle) for angle in (0, 0, degree)]),
                 0, 0, 0, 0
             )
+
+    def open_gripper(self,servo_n, microseconds):
+        self.master.mav.command_long_send(
+        self.master.target_system, self.master.target_component,
+        mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
+        0,            # first transmission of this command
+        servo_n + 8,  # servo instance, offset by 8 MAIN outputs
+        microseconds, # PWM pulse-width
+        0,0,0,0,0     # unused parameters
+        )
+        for us in range(50, 1900, 1100): #min to max
+            # set_servo_pwm(1, us)
+            time.sleep(0.125)
+    
+    def close_gripper(self,servo_n, microseconds):
+        self.master.mav.command_long_send(
+        self.master.target_system, self.master.target_component,
+        mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
+        0,            # first transmission of this command
+        servo_n + 8,  # servo instance, offset by 8 MAIN outputs
+        microseconds, # PWM pulse-width
+        0,0,0,0,0     # unused parameters
+        )
+        for us in range(50, 1900, 1100): #max to min
+            # set_servo_pwm(1, us)
+            time.sleep(0.125)
