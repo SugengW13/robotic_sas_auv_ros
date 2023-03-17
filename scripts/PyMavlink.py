@@ -61,6 +61,10 @@ class ROV():
             self.master.target_component,
             *self.rcValue
         )
+    
+    def getAllMessages(self):
+        msg = self.master.recv_match()
+        return msg
 
     def getDataMessage(self, messageType):
         while True:
