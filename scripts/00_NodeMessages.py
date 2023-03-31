@@ -21,20 +21,20 @@ def main(rov: ROV):
         if message.get_type() == 'HEARTBEAT':
             baseMode = message.base_mode
             rospy.loginfo(baseMode)
-            pubBaseMode.publish()
+            pubBaseMode.publish(baseMode)
         elif message.get_type() == 'AHRS2':
             altitude = message.altitude
             rospy.loginfo(altitude)
-            pubAltitude.publish()
+            pubAltitude.publish(altitude)
         elif message.get_type() == 'VFR_HUD':
             heading = message.heading
             rospy.loginfo(heading)
-            pubHeading.publish()
+            pubHeading.publish(heading)
         
         rate.sleep()
 
 if __name__ == '__main__':
-    master = mavutil.mavlink_connection("/dev/ttyACM1", baud=115200)
+    master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
     # master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
     master.wait_heartbeat()
 
