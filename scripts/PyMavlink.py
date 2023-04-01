@@ -61,6 +61,8 @@ class ROV():
             self.master.target_component,
             *self.rcValue
         )
+
+        print(channel, pwm)
     
     def getAllMessages(self):
         msg = self.master.recv_match()
