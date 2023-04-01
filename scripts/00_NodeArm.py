@@ -1,37 +1,14 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Bool
 from pymavlink import mavutil
 
 from PyMavlink import ROV
 
 def main(rov: ROV):
-    isArm = False
+    rospy.init_node('node_arm', anonymous=True)
 
     rov.arm()
-
-    pub = rospy.Publisher('is_armed', Bool, queue_size=10)
-    rospy.init_node('node_arm', anonymous=True)
-    rate = rospy.Rate(10)
-
-    while not rospy.is_shutdown():
-        dataMessage = rov.getDataMessage('HEARTBEAT')
-
-        if dataMessage != None:
-            baseMode = dataMessage.base_mode
-
-            if baseMode == 81:
-                isArm = False
-            elif baseMode == 209:
-                isArm = True
-
-            rospy.loginfo(isArm)
-            pub.publish(isArm)
-        else:
-            continue
-
-        rate.sleep()
 
 if __name__ == '__main__':
     master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
@@ -39,7 +16,7 @@ if __name__ == '__main__':
     master.wait_heartbeat()
 
     rov = ROV(master)
-
+    
     try:
         main(rov)
     except rospy.ROSInterruptException:

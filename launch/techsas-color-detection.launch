@@ -1,4 +1,7 @@
 <launch>
+    <node pkg='techsas' name='arm' type='00_NodeArm.py' output='screen' />
+    <node pkg='techsas' name='messages' type='00_NodeMessages.py' output='screen' />
+    <node pkg='techsas' name='is_armed' type='01_NodeIsArmed.py' output='screen' />
     <node pkg='techsas' name='object_detection' type='01_NodeColorDetection.py' output='screen' />
     <node pkg='techsas' name='calculate_lateral' type='03_NodeCalculateLateral.py' output='screen' />
     <node pkg='techsas' name='control_lateral' type='05_NodeControlLateral.py' output='screen' />

@@ -20,15 +20,15 @@ def main(rov: ROV):
         
         if message.get_type() == 'HEARTBEAT':
             baseMode = message.base_mode
-            rospy.loginfo(baseMode)
+            # rospy.loginfo(baseMode)
             pubBaseMode.publish(baseMode)
         elif message.get_type() == 'AHRS2':
             altitude = message.altitude
-            rospy.loginfo(altitude)
+            # rospy.loginfo(altitude)
             pubAltitude.publish(altitude)
         elif message.get_type() == 'VFR_HUD':
             heading = message.heading
-            rospy.loginfo(heading)
+            # rospy.loginfo(heading)
             pubHeading.publish(heading)
         
         rate.sleep()
