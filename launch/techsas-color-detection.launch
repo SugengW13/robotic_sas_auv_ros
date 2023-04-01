@@ -1,5 +1,7 @@
 <launch>
     <node pkg='techsas' name='object_detection' type='01_NodeColorDetection.py' output='screen' />
+    <node pkg='techsas' name='calculate_lateral' type='03_NodeCalculateLateral.py' output='screen' />
+    <node pkg='techsas' name='control_lateral' type='05_NodeControlLateral.py' output='screen' />
     <!-- <node pkg="techsas" name="node_arm" type="00_NodeArm.py" output="screen" /> -->
     <!-- <node pkg="techsas" name="node_object_detection" type="01_NodeObjectDetection.py" output="screen" /> -->
     <!-- <node pkg="techsas" name="node_navigation" type="01_NodeNavigation.py" output="screen" /> -->

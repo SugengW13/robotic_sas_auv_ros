@@ -7,8 +7,8 @@ import cv2
 from ObjectDetection import HSV
 
 def main(capture):
-    lowerHsv = (156, 30, 112)
-    upperHsv = (188, 255, 255)
+    lowerHsv = (94, 191, 75)
+    upperHsv = (160, 255, 255)
 
     pubY = rospy.Publisher('y_coordinate', Float32, queue_size=10)
     pubX = rospy.Publisher('x_coordinate', Float32, queue_size=10)
@@ -25,8 +25,6 @@ def main(capture):
 
         coordinate = hsv.get_center()
         upperCoordinate = hsv.get_upper_position()
-
-        print(upperCoordinate)
 
         if coordinate != None and upperCoordinate != None:
             x = coordinate[0]
