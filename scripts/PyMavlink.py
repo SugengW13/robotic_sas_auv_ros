@@ -43,11 +43,11 @@ class ROV():
         return True
 
     def setMode(self, mode):
+        print(mode)
         if mode not in self.master.mode_mapping():
             print('Unknown mode : {}'.format(mode))
             print('Try:', list(self.master.mode_mapping().keys()))
             sys.exit(1)
-
 
         modeId = self.master.mode_mapping()[mode]
 
