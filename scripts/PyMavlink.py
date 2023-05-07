@@ -43,11 +43,11 @@ class ROV():
         return True
 
     def setMode(self, mode):
+        print(mode)
         if mode not in self.master.mode_mapping():
             print('Unknown mode : {}'.format(mode))
             print('Try:', list(self.master.mode_mapping().keys()))
             sys.exit(1)
-
 
         modeId = self.master.mode_mapping()[mode]
 
@@ -75,6 +75,12 @@ class ROV():
                 return None
             if msg.get_type() == messageType:
                 return msg
+            
+    def getAltitude(self):
+        msg = self.master.recv_match()
+
+        if msg.get_type() == 'AHRS2':
+            return msg.altitude
     
     def getAllParams(self):
         self.master.mav.param_request_list_send(
@@ -116,7 +122,7 @@ class ROV():
         )
     
     def setHeading(self, degree, loop):
-        for _ in range(0, loop, 1):
+        for _ in range(0, loop):
             self.master.mav.set_attitude_target_send(
                 int(1e3 * (time.time() - self.bootTime)),
                 self.master.target_system, self.master.target_component,
@@ -124,6 +130,7 @@ class ROV():
                 QuaternionBase([math.radians(angle) for angle in (0, 0, degree)]),
                 0, 0, 0, 0
             )
+            time.sleep(1)
 
     def openGripper(self, servoN, microseconds):
         self.master.mav.command_long_send(
