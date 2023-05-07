@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
-import rospy
+import time
 from pymavlink import mavutil
 
 from PyMavlink import ROV
 
 def main(rov: ROV):
-    rospy.init_node('node_start_up', anonymous=True)
-
     rov.arm()
+
+    rov.setHeading(360, 4)
+
+    rov.disarm()
 
 if __name__ == '__main__':
     # master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
@@ -17,8 +19,5 @@ if __name__ == '__main__':
     master.wait_heartbeat()
 
     rov = ROV(master)
-    
-    try:
-        main(rov)
-    except rospy.ROSInterruptException:
-        pass
+
+    main(rov)
