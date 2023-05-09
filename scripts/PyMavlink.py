@@ -43,7 +43,6 @@ class ROV():
         return True
 
     def setMode(self, mode):
-        print(mode)
         if mode not in self.master.mode_mapping():
             print('Unknown mode : {}'.format(mode))
             print('Try:', list(self.master.mode_mapping().keys()))
@@ -54,6 +53,14 @@ class ROV():
         self.master.set_mode(modeId)
     
     def setRcValue(self, channel, pwm):
+        # RC Input & Output ArduSub
+        # 1 => Roll
+        # 2 => Pitch
+        # 3 => Throttle
+        # 4 => Yaw
+        # 5 => Forward/Backward
+        # 6 => Lateral
+
         self.rcValue[channel - 1] = pwm
 
         self.master.mav.rc_channels_override_send(
@@ -97,40 +104,66 @@ class ROV():
 
             time.sleep(0.01)
 
-    def setDepth(self, depth):
+    def setDepth(self, bootTime, depth):
+        # self.master.mav.set_position_target_global_int_send(
+        #     int(1e3 * (time.time() - bootTime)),    # time_boot_ms
+        #     self.master.target_system,              # target_system
+        #     self.master.target_component,           # target_component
+        #     mavutil.mavlink.MAV_FRAME_GLOBAL_INT,   # coordinate_frame
+        #     0b011110001111,                         # type_mask
+        #     0, 0, depth,                            # lat_int, lon_int, alt
+        #     0, 0, 0,                                # vx, vy, vz
+        #     0, 0, 0,                                # ax, ay, az
+        #     0, 0                                    # yaw, yaw_rate
+        # )
+
         self.master.mav.set_position_target_global_int_send(
-            int(1e3 * (time.time() - self.bootTime)),
-            self.master.target_system, self.master.target_component,
-            coordinate_frame=mavutil.mavlink.MAV_FRAME_GLOBAL_INT,
-            type_mask=(
+            time_boot_ms = int(1e3 * (time.time() - bootTime)),
+            coordinate_frame = mavutil.mavlink.MAV_FRAME_GLOBAL_INT,
+            type_mask = (
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_X_IGNORE |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_Y_IGNORE |
-                # DON'T mavutil.mavlink.POSITION_TARGET_TYPEMASK_Z_IGNORE |
+                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_Z_IGNORE |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_VX_IGNORE |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_VY_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_VZ_IGNORE |
+                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_VZ_IGNORE |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_AX_IGNORE |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_AY_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_AZ_IGNORE |
-                # DON'T mavutil.mavlink.POSITION_TARGET_TYPEMASK_FORCE_SET |
+                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_AZ_IGNORE |
+                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_FORCE_SET |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_YAW_IGNORE |
                 mavutil.mavlink.POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE
             ),
-            lat_int=0, lon_int=0, alt=depth,
-            vx=0, vy=0, vz=0,
-            afx=0, afy=0, afz=0, yaw=0, yaw_rate=0
+            lat_int = 0, lon_int = 0, alt = depth,
+            vx = 0, vy = 0, vz = 0,
+            ax = 0, ay = 0, az = 0,
+            yaw = 0, yaw_rate = 0
         )
+
+        # type_mask
+        # bit 0 => X Ignore
+        # bit 1 => Y Ignore
+        # bit 2 => Z Ignore
+        # bit 3 => VX Ignore
+        # bit 4 => VY Ignore
+        # bit 5 => VZ Ignore
+        # bit 6 => AX Ignore
+        # bit 7 => AY Ignore
+        # bit 8 => AZ Ignore
+        # bit 9 => Force Set
+        # bit 10 => Yaw Ignore
+        # bit 11 => Yaw Rate Ignore
     
-    def setHeading(self, degree, loop):
+    def setHeading(self, bootTime, degree, loop):
         for _ in range(0, loop):
             self.master.mav.set_attitude_target_send(
-                int(1e3 * (time.time() - self.bootTime)),
-                self.master.target_system, self.master.target_component,
-                mavutil.mavlink.ATTITUDE_TARGET_TYPEMASK_THROTTLE_IGNORE,
-                QuaternionBase([math.radians(angle) for angle in (0, 0, degree)]),
-                0, 0, 0, 0
+                int(1e3 * (time.time() - bootTime)),                                # time_boot_ms
+                self.master.target_system,                                          # target_system
+                self.master.target_component,                                       # target_component
+                mavutil.mavlink.ATTITUDE_TARGET_TYPEMASK_THROTTLE_IGNORE,           # type_mask
+                QuaternionBase([math.radians(angle) for angle in (0, 0, degree)]),  # quaternion
+                0, 0, 0, 0                                                          # yaw_rate, roll, pitch, thrust
             )
-            time.sleep(1)
 
     def openGripper(self, servoN, microseconds):
         self.master.mav.command_long_send(
