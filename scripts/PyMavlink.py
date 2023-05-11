@@ -76,18 +76,8 @@ class ROV():
         return msg
 
     def getDataMessage(self, messageType):
-        while True:
-            msg = self.master.recv_match()
-            if not msg:
-                return None
-            if msg.get_type() == messageType:
-                return msg
-            
-    def getAltitude(self):
-        msg = self.master.recv_match()
-
-        if msg.get_type() == 'AHRS2':
-            return msg.altitude
+        msg = self.master.recv_match(type=messageType, blocking=True)
+        return msg
     
     def getAllParams(self):
         self.master.mav.param_request_list_send(
@@ -105,40 +95,42 @@ class ROV():
             time.sleep(0.01)
 
     def setDepth(self, bootTime, depth):
-        # self.master.mav.set_position_target_global_int_send(
-        #     int(1e3 * (time.time() - bootTime)),    # time_boot_ms
-        #     self.master.target_system,              # target_system
-        #     self.master.target_component,           # target_component
-        #     mavutil.mavlink.MAV_FRAME_GLOBAL_INT,   # coordinate_frame
-        #     0b011110001111,                         # type_mask
-        #     0, 0, depth,                            # lat_int, lon_int, alt
-        #     0, 0, 0,                                # vx, vy, vz
-        #     0, 0, 0,                                # ax, ay, az
-        #     0, 0                                    # yaw, yaw_rate
-        # )
-
         self.master.mav.set_position_target_global_int_send(
-            time_boot_ms = int(1e3 * (time.time() - bootTime)),
-            coordinate_frame = mavutil.mavlink.MAV_FRAME_GLOBAL_INT,
-            type_mask = (
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_X_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_Y_IGNORE |
-                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_Z_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_VX_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_VY_IGNORE |
-                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_VZ_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_AX_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_AY_IGNORE |
-                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_AZ_IGNORE |
-                # mavutil.mavlink.POSITION_TARGET_TYPEMASK_FORCE_SET |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_YAW_IGNORE |
-                mavutil.mavlink.POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE
-            ),
-            lat_int = 0, lon_int = 0, alt = depth,
-            vx = 0, vy = 0, vz = 0,
-            ax = 0, ay = 0, az = 0,
-            yaw = 0, yaw_rate = 0
+            int(1e3 * (time.time() - bootTime)),    # time_boot_ms
+            self.master.target_system,              # target_system
+            self.master.target_component,           # target_component
+            mavutil.mavlink.MAV_FRAME_GLOBAL_INT,   # coordinate_frame
+            0b011110001111,                         # type_mask
+            0, 0, depth,                            # lat_int, lon_int, alt
+            0, 0, 0,                                # vx, vy, vz
+            0, 0, 0,                                # afx, afy, afz
+            0, 0                                    # yaw, yaw_rate
         )
+
+        # self.master.mav.set_position_target_global_int_send(
+        #     time_boot_ms = int(1e3 * (time.time() - bootTime)),
+        #     target_system = self.master.target_system,
+        #     target_component = self.master.target_component,
+        #     coordinate_frame = mavutil.mavlink.MAV_FRAME_GLOBAL_INT,
+        #     type_mask = (
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_X_IGNORE |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_Y_IGNORE |
+        #         # mavutil.mavlink.POSITION_TARGET_TYPEMASK_Z_IGNORE |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_VX_IGNORE |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_VY_IGNORE |
+        #         # mavutil.mavlink.POSITION_TARGET_TYPEMASK_VZ_IGNORE |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_AX_IGNORE |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_AY_IGNORE |
+        #         # mavutil.mavlink.POSITION_TARGET_TYPEMASK_AZ_IGNORE |
+        #         # mavutil.mavlink.POSITION_TARGET_TYPEMASK_FORCE_SET |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_YAW_IGNORE |
+        #         mavutil.mavlink.POSITION_TARGET_TYPEMASK_YAW_RATE_IGNORE
+        #     ),
+        #     lat_int = 0, lon_int = 0, alt = depth,
+        #     vx = 0, vy = 0, vz = 0,
+        #     afx = 0, afy = 0, afz = 0,
+        #     yaw = 0, yaw_rate = 0
+        # )
 
         # type_mask
         # bit 0 => X Ignore
