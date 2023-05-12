@@ -17,33 +17,12 @@ def main():
     rospy.init_node('node_control_rov', anonymous=True)
 
     rov.arm()
-    
+
     rov.setMode('ALT_HOLD')
     
     time.sleep(1)
 
-    rov.setDepth(0, -0.5)
-
-    time.sleep(1)
-
-    startTime = time.time()
-
-    while True:
-        bootTime = int(time.time() - startTime)
-        
-        if bootTime <= 30:
-            rov.setRcValue(5, 1600)
-
-            if bootTime > 0 and bootTime%5 == 0:
-                rov.setRcValue(5, 1550)
-        else:
-            break
-
-        time.sleep(1)
-
-    rov.setDepth(0, 0)
-
-    time.sleep(1)
+    
 
     rov.disarm()
 

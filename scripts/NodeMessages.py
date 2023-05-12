@@ -6,15 +6,8 @@ from std_msgs.msg import Int16, Float32
 from pymavlink import mavutil
 from PyMavlink import ROV
 
-time.sleep(3)
-
-while True:
-    try:
-        master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
-        # master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
-        break
-    except:
-        continue
+master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
+# master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 
 master.wait_heartbeat()
 
@@ -23,7 +16,7 @@ rov = ROV(master)
 def main():
     pub_base_mode = rospy.Publisher('base_mode', Int16, queue_size=10)
     pub_custom_mode = rospy.Publisher('custom_mode', Int16, queue_size=10)
-    pub_altitude = rospy.Publisher('altitude', Float32, queue_size=120)
+    pub_altitude = rospy.Publisher('altitude', Float32, queue_size=10)
     pub_heading = rospy.Publisher('heading', Int16, queue_size=10)
 
     rospy.init_node('node_messeges', anonymous=True)
