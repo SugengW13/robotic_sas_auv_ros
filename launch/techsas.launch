@@ -2,4 +2,5 @@
     <node pkg='techsas' name='node_boot_time' type='NodeBootTime.py' output='screen' />
     <node pkg='techsas' name='node_messages' type='NodeMessages.py' output='screen' />
     <node pkg='techsas' name='node_guidance' type='NodeGuidance.py' output='screen' />
+    <node pkg='techsas' name='node_accumulator' type='NodeAccumulator.py' output='screen' />
 </launch>
