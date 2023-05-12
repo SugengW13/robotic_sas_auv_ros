@@ -1,9 +1,6 @@
 <launch>
-    <node pkg="techsas" name="node_start_up" type="NodeStartUp.py" output="screen" />
-    <node pkg="techsas" name="node_messages" type="NodeMessages.py" output="screen" />
-    <node pkg="techsas" name="node_is_arm" type="NodeIsArm.py" output="screen" />
-    <node pkg="techsas" name="node_control_depth" type="NodeControlDepth.py" output="screen" />
-    <node pkg="techsas" name="node_rc_depth" type="NodeRcDepth.py" output="screen" />
-    <!-- <node pkg="techsas" name="node_boot_time" type="NodeBootTime.py" output="screen" />     -->
-    <!-- <node pkg="techsas" name="node_disarm" type="NodeDisarm.py" output="screen" /> -->
+    <node pkg='techsas' name='node_boot_time' type='NodeBootTime.py' output='screen' />
+    <node pkg='techsas' name='node_messages' type='NodeMessages.py' output='screen' />
+    <node pkg='techsas' name='node_guidance' type='NodeGuidance.py' output='screen' />
+    <node pkg='techsas' name='node_accumulator' type='NodeAccumulator.py' output='screen' />
 </launch>

@@ -1,60 +1,51 @@
 #!/usr/bin/env python3
 
+import time
 import rospy
 from std_msgs.msg import Int16, Float32
 from pymavlink import mavutil
-
 from PyMavlink import ROV
 
-def main(rov: ROV):
-    pubBaseMode = rospy.Publisher('base_mode', Int16, queue_size=120)
-    pubCustomMode = rospy.Publisher('custom_mode', Int16, queue_size=10)
-    pubAltitude = rospy.Publisher('altitude', Float32, queue_size=120)
-    pubHeading = rospy.Publisher('heading', Int16, queue_size=10)
+master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
+# master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+
+master.wait_heartbeat()
+
+rov = ROV(master)
+
+def main():
+    pub_base_mode = rospy.Publisher('base_mode', Int16, queue_size=10)
+    pub_custom_mode = rospy.Publisher('custom_mode', Int16, queue_size=10)
+    pub_altitude = rospy.Publisher('altitude', Float32, queue_size=10)
+    pub_heading = rospy.Publisher('heading', Int16, queue_size=10)
 
     rospy.init_node('node_messeges', anonymous=True)
 
-    rate = rospy.Rate(120)
+    rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
-        message = rov.getAllMessages()
-
         try:
-            if message.get_type() == 'HEARTBEAT':
-                baseMode = message.base_mode
-                customMode = message.custom_mode
-                
-                # print('Base Mode', baseMode)
-                # print('Custom Mode', customMode)
+            heart_beat = rov.getDataMessage('HEARTBEAT')
+            base_mode = heart_beat.base_mode
+            custom_mode = heart_beat.custom_mode
 
-                pubBaseMode.publish(baseMode)
-                pubCustomMode.publish(customMode)
-            elif message.get_type() == 'AHRS2':
-                altitude = message.altitude
-                
-                print('Alt', altitude)
+            ahrs2 = rov.getDataMessage('AHRS2')
+            altitude = round(ahrs2.altitude, 4)
 
-                pubAltitude.publish(altitude)
-            elif message.get_type() == 'VFR_HUD':
-                heading = message.heading
-                
-                print('Heading', heading)
+            vfr_hud = rov.getDataMessage('VFR_HUD')
+            heading = vfr_hud.heading
 
-                pubHeading.publish(heading)
+            pub_base_mode.publish(base_mode)
+            pub_custom_mode.publish(custom_mode)
+            pub_altitude.publish(altitude)
+            pub_heading.publish(heading)
+
+            rate.sleep()
         except:
             continue
 
-        rate.sleep()
-
 if __name__ == '__main__':
-    # master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
-    master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
-
-    master.wait_heartbeat()
-
-    rov = ROV(master)
-
     try:
-        main(rov)
+        main()
     except rospy.ROSInterruptException:
         pass
