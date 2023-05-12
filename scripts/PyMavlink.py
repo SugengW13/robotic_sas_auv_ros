@@ -49,7 +49,7 @@ class ROV():
             sys.exit(1)
 
         modeId = self.master.mode_mapping()[mode]
-
+        print(modeId)
         self.master.set_mode(modeId)
     
     def setRcValue(self, channel, pwm):
@@ -95,18 +95,29 @@ class ROV():
             time.sleep(0.01)
 
     def setDepth(self, bootTime, depth):
-        self.master.mav.set_position_target_global_int_send(
-            int(1e3 * (time.time() - bootTime)),    # time_boot_ms
-            self.master.target_system,              # target_system
-            self.master.target_component,           # target_component
-            mavutil.mavlink.MAV_FRAME_GLOBAL_INT,   # coordinate_frame
-            0b011110001111,                         # type_mask
-            0, 0, depth,                            # lat_int, lon_int, alt
-            0, 0, 0,                                # vx, vy, vz
-            0, 0, 0,                                # afx, afy, afz
-            0, 0                                    # yaw, yaw_rate
-        )
+        # self.master.mav.set_position_target_global_int_send(
+        #     int(1e3 * (time.time() - bootTime)),    # time_boot_ms
+        #     self.master.target_system,              # target_system
+        #     self.master.target_component,           # target_component
+        #     mavutil.mavlink.MAV_FRAME_GLOBAL_INT,   # coordinate_frame
+        #     0b011110001111,                         # type_mask
+        #     0, 0, depth,                            # lat_int, lon_int, alt
+        #     0, 0, 0,                                # vx, vy, vz
+        #     0, 0, 0,                                # afx, afy, afz
+        #     0, 0                                    # yaw, yaw_rate
+        # )
 
+        self.master.mav.set_position_target_global_int_send(
+            0,
+            0, 0,
+            mavutil.mavlink.MAV_FRAME_GLOBAL_INT,
+            0b0000111111111000,
+            0, 0, depth,
+            0 , 0 , 0 ,
+            0 , 0 , 0 ,
+            0 , 0
+        )
+        
         # self.master.mav.set_position_target_global_int_send(
         #     time_boot_ms = int(1e3 * (time.time() - bootTime)),
         #     target_system = self.master.target_system,
