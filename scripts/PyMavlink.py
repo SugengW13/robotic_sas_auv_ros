@@ -68,8 +68,6 @@ class ROV():
             self.master.target_component,
             *self.rcValue
         )
-
-        print(channel, pwm)
     
     def getAllMessages(self):
         msg = self.master.recv_match()
@@ -167,22 +165,8 @@ class ROV():
                 QuaternionBase([math.radians(angle) for angle in (0, 0, degree)]),  # quaternion
                 0, 0, 0, 0                                                          # yaw_rate, roll, pitch, thrust
             )
-
-    def openGripper(self, servoN, microseconds):
-        self.master.mav.command_long_send(
-            self.master.target_system, self.master.target_component,
-            mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
-            0,            # first transmission of this command
-            servoN + 8,  # servo instance, offset by 8 MAIN outputs
-            microseconds, # PWM pulse-width
-            0,0,0,0,0     # unused parameters
-        )
-
-        for _ in range(50, 1900, 1100): #min to max
-            # set_servo_pwm(1, us)
-            time.sleep(0.125)
     
-    def closeGripper(self, servoN, microseconds):
+    def controlGripper(self,servoN, microseconds):
         self.master.mav.command_long_send(
             self.master.target_system, self.master.target_component,
             mavutil.mavlink.MAV_CMD_DO_SET_SERVO,
@@ -192,6 +176,20 @@ class ROV():
             0,0,0,0,0     # unused parameters
         )
 
-        for _ in range(50, 1900, 1100): #max to min
-            # set_servo_pwm(1, us)
-            time.sleep(0.125)
+    def openGripper(self):
+        self.master.mav.command_long_send(
+            self.master.target_system,
+            self.master.target_component,
+            mavutil.mavlink.MAV_CMD_DO_GRIPPER,
+            0,
+            0, 0, 0, 0, 1000, 0, 0
+        )
+
+    def closeGripper(self):
+        self.master.mav.command_long_send(
+            self.master.target_system,
+            self.master.target_component,
+            mavutil.mavlink.MAV_CMD_DO_GRIPPER,
+            0,
+            0, 0, 0, 0, 2000, 0, 0
+        )

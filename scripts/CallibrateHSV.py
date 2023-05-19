@@ -54,27 +54,23 @@ def set_bounding_box(cnts, image):
 
 def main(capture):
     while True:
-        ret, frame = capture.read()
+        _, frame = capture.read()
         
-        try:
-            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        # try:
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-            lower_hsv = get_lower_value()
-            upper_hsv = get_upper_value()
+        lower_hsv = get_lower_value()
+        upper_hsv = get_upper_value()
 
-            thresh = cv2.inRange(hsv, lower_hsv, upper_hsv)
-            
-            contours = set_contour(thresh)
+        thresh = cv2.inRange(hsv, lower_hsv, upper_hsv)
+        
+        cv2.imshow('Frame', frame)
+        cv2.imshow('Threshold', thresh)
 
-            set_bounding_box(contours, frame)
-            
-            cv2.imshow('Frame', frame)
-            cv2.imshow('Threshold', thresh)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-        except:
-            continue
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        # except:
+        #     continue
 
     frame.release()
     cv2.destroyAllWindows()
@@ -83,7 +79,7 @@ if __name__ == '__main__':
     init_trackbars()
 
     camera = cv2.VideoCapture(0)
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    # camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    # camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     
     main(camera)

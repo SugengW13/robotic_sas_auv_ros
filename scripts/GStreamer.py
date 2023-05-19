@@ -7,9 +7,13 @@ import cv2
 import gi
 import numpy as np
 
+from ObjectDetection import HSV
+
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst
 
+lower_hsv = np.array([0, 75, 85])
+upper_hsv = np.array([35, 255, 255])
 
 class Video():
     """BlueRov video capture class constructor
@@ -142,6 +146,14 @@ if __name__ == '__main__':
         if video.frame_available():
             # Only retrieve and display a frame if it's new
             frame = video.frame()
+            print(frame)
+
+            bounding_box = HSV(frame, lower_hsv, upper_hsv).get_bounding_box()
+
+            if bounding_box is not None:
+                x, y, w, h = bounding_box
+                print(x, y, w, h)
+
             cv2.imshow('frame', frame)
         # Allow frame to display, and check if user wants to quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
