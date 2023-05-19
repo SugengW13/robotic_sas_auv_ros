@@ -6,8 +6,11 @@ from std_msgs.msg import Int16, Float32
 from pymavlink import mavutil
 from PyMavlink import ROV
 
-master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
-# master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+import os
+os.environ['MAVLINK20'] = ''
+
+# master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
+master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 
 master.wait_heartbeat()
 
@@ -34,6 +37,8 @@ def main():
 
             vfr_hud = rov.getDataMessage('VFR_HUD')
             heading = vfr_hud.heading
+
+            print(altitude, heading)
 
             pub_base_mode.publish(base_mode)
             pub_custom_mode.publish(custom_mode)
