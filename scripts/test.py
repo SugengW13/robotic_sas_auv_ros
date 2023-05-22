@@ -1,7 +1,7 @@
 import cv2
 
 # Create a VideoCapture object to read from the camera
-cap = cv2.VideoCapture(1)  # Use 0 to indicate the default camera (you can change the index if you have multiple cameras)
+cap = cv2.VideoCapture(0)  # Use 0 to indicate the default camera (you can change the index if you have multiple cameras)
 
 # Check if the camera was successfully opened
 if not cap.isOpened():

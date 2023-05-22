@@ -1,7 +1,10 @@
 <launch>
-    <node pkg='techsas' name='node_boot_time' type='NodeBootTime.py' output='screen' />
-    <!-- <node pkg='techsas' name='node_messages' type='NodeMessages.py' output='screen' /> -->
-    <!-- <node pkg='techsas' name='node_guidance' type='NodeGuidance.py' output='screen' /> -->
-    <!-- <node pkg='techsas' name='node_accumulator' type='NodeAccumulator.py' output='screen' /> -->
-    <node pkg='techsas' name='node_control_rov' type='NodeControlRov.py' output='screen' />
+    <group ns='techsas'>
+        <node pkg='techsas' type='NodeBootTime.py' name='node_boot_time' output='screen' />
+        <node pkg='techsas' type='NodeGuidance.py' name='node_guidance' output='screen' />
+    </group>
+    
+    <group ns='techsas'>
+        <node pkg='yolov5' type='node_object_detect.py' name='node_object_detect' output='screen' />
+    </group>
 </launch>
