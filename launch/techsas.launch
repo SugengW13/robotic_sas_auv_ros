@@ -2,10 +2,10 @@
     <group ns='techsas'>
         <node pkg='techsas' type='NodeBootTime.py' name='node_boot_time' output='screen' />
         <node pkg='techsas' type='NodeGuidance.py' name='node_guidance' output='screen' />
-        <node pkg='techsas' type='NodeControlRov.py' name='node_control_rov' output='screen' />
+        <!-- <node pkg='techsas' type='NodeControlRov.py' name='node_control_rov' output='screen' /> -->
     </group>
     
     <group ns='techsas'>
-        <node pkg='yolov5' type='node_object_detect.py' name='node_object_detect' output='screen' />
+        <node pkg='yolov5' type='node_object_detection.py' name='node_object_detection' output='screen' />
     </group>
 </launch>

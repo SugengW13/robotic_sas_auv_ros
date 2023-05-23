@@ -1,7 +1,4 @@
-#!/usr/bin/env python
-"""
-BlueRov video capture class
-"""
+#!/usr/bin/env python3
 
 import cv2
 import gi
@@ -16,43 +13,16 @@ lower_hsv = np.array([0, 75, 85])
 upper_hsv = np.array([35, 255, 255])
 
 class Video():
-    """BlueRov video capture class constructor
-
-    Attributes:
-        port (int): Video UDP port
-        video_codec (string): Source h264 parser
-        video_decode (string): Transform YUV (12bits) to BGR (24bits)
-        video_pipe (object): GStreamer top-level pipeline
-        video_sink (object): Gstreamer sink element
-        video_sink_conf (string): Sink configuration
-        video_source (string): Udp source ip and port
-        latest_frame (np.ndarray): Latest retrieved video frame
-    """
-
     def __init__(self, port=5600):
-        """Summary
-
-        Args:
-            port (int, optional): UDP port
-        """
-
         Gst.init(None)
 
         self.port = port
         self.latest_frame = self._new_frame = None
 
-        # [Software component diagram](https://www.ardusub.com/software/components.html)
-        # UDP video stream (:5600)
         self.video_source = 'udpsrc port={}'.format(self.port)
-        # [Rasp raw image](http://picamera.readthedocs.io/en/release-0.7/recipes2.html#raw-image-capture-yuv-format)
-        # Cam -> CSI-2 -> H264 Raw (YUV 4-4-4 (12bits) I420)
         self.video_codec = '! application/x-rtp, payload=96 ! rtph264depay ! h264parse ! avdec_h264'
-        # Python don't have nibble, convert YUV nibbles (4-4-4) to OpenCV standard BGR bytes (8-8-8)
-        self.video_decode = \
-            '! decodebin ! videoconvert ! video/x-raw,format=(string)BGR ! videoconvert'
-        # Create a sink to get data
-        self.video_sink_conf = \
-            '! appsink emit-signals=true sync=false max-buffers=2 drop=true'
+        self.video_decode = '! decodebin ! videoconvert ! video/x-raw,format=(string)BGR ! videoconvert'
+        self.video_sink_conf = '! appsink emit-signals=true sync=false max-buffers=2 drop=true'
 
         self.video_pipe = None
         self.video_sink = None
@@ -60,14 +30,12 @@ class Video():
         self.run()
 
     def start_gst(self, config=None):
-
         if not config:
-            config = \
-                [
-                    'videotestsrc ! decodebin',
-                    '! videoconvert ! video/x-raw,format=(string)BGR ! videoconvert',
-                    '! appsink'
-                ]
+            config = [
+                'videotestsrc ! decodebin',
+                '! videoconvert ! video/x-raw,format=(string)BGR ! videoconvert',
+                '! appsink'
+            ]
 
         command = ' '.join(config)
         self.video_pipe = Gst.parse_launch(command)
@@ -88,29 +56,16 @@ class Video():
         return array
 
     def frame(self):
-        """ Get Frame
-
-        Returns:
-            np.ndarray: latest retrieved image frame
-        """
         if self.frame_available:
             self.latest_frame = self._new_frame
-            # reset to indicate latest frame has been 'consumed'
             self._new_frame = None
+
         return self.latest_frame
 
     def frame_available(self):
-        """Check if a new frame is available
-
-        Returns:
-            bool: true if a new frame is available
-        """
         return self._new_frame is not None
 
     def run(self):
-        """ Get frame to update _new_frame
-        """
-
         self.start_gst(
             [
                 self.video_source,
@@ -127,10 +82,7 @@ class Video():
 
         return Gst.FlowReturn.OK
 
-
 if __name__ == '__main__':
-    # Create the video object
-    # Add port= if is necessary to use a different one
     video = Video()
 
     print('Initialising stream...')
@@ -139,22 +91,17 @@ if __name__ == '__main__':
         waited += 1
         print('\r  Frame not available (x{})'.format(waited), end='')
         cv2.waitKey(30)
-    print('\nSuccess!\nStarting streaming - press "q" to quit.')
 
     while True:
-        # Wait for the next frame to become available
         if video.frame_available():
-            # Only retrieve and display a frame if it's new
             frame = video.frame()
-            print(frame)
 
             bounding_box = HSV(frame, lower_hsv, upper_hsv).get_bounding_box()
 
             if bounding_box is not None:
                 x, y, w, h = bounding_box
-                print(x, y, w, h)
 
             cv2.imshow('frame', frame)
-        # Allow frame to display, and check if user wants to quit
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
