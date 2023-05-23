@@ -33,10 +33,15 @@ def calculate_pwm_lateral(x):
     # Min Pos at +- 25, Max at += 300
     # Min PWM at += 50, Max at += 150
     
-    if distance_from_center > 0:
+    if distance_from_center >= 25:
         pwm = int(np.interp(distance_from_center, (25, 300), (50, 150)))
-    elif distance_from_center < 0:
+    elif distance_from_center <= -25:
         pwm = int(np.interp(distance_from_center, (-300, -25), (-150, -50)))
+    
+    if pwm >= 150:
+        pwm = 150
+    elif pwm <= -150:
+        pwm = -150
 
     return pwm
 
@@ -50,6 +55,9 @@ def calculate_pwm_forward(y):
     if distance_from_bottom > 0:
         pwm = int(np.interp(distance_from_bottom, (0, 400), (0, 200)))
 
+    if pwm >= 200:
+        pwm = 200
+    
     return pwm
 
 def calculate_angle_range(degree, tolerance):
@@ -111,7 +119,7 @@ def callback_heading(data):
         
 
 def callback_boot_time(_):
-    global is_arm, is_alt_hold, altitude, heading
+    global is_arm, is_alt_hold, pwm_lateral, pwm_forward, altitude, heading
     
     pub_pwm_lateral.publish(pwm_lateral)
     pub_pwm_forward.publish(pwm_forward)
