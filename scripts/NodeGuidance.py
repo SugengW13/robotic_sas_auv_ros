@@ -28,13 +28,13 @@ class Subscriber():
     def callback_center_x(self, data):
         distance_from_center = data.data - self.window_width / 2
         
-        # Distance  =>  Min += 25           Max += 250
+        # Distance  =>  Min += 50           Max += 250
         # PWM       =>  Min 1500 +- 50      Max 1500 += 100
 
-        if distance_from_center >= 25:
-            self.pwm_lateral = int(np.interp(distance_from_center, (25, 250), (1550, 1600)))
-        elif distance_from_center <= -25:
-            self.pwm_lateral = int(np.interp(distance_from_center, (-250, -25), (1300, 1450)))
+        if distance_from_center >= 50:
+            self.pwm_lateral = int(np.interp(distance_from_center, (50, 250), (1550, 1600)))
+        elif distance_from_center <= -50:
+            self.pwm_lateral = int(np.interp(distance_from_center, (-250, -50), (1300, 1450)))
         else:
             self.pwm_lateral = 1500
 
@@ -48,6 +48,10 @@ class Subscriber():
 
         # Distance  =>  Min = 0         Max = 400
         # PWM       =>  Min = 1550      Max = 1600
+        
+        if self.pwm_lateral != 1500:
+            self.pwm_forward = 1500
+            return
 
         if distance_from_bottom > 0:
             self.pwm_forward = int(np.interp(distance_from_bottom, (0, 400), (1550, 1600)))
