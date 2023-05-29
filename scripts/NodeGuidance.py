@@ -9,6 +9,11 @@ class Subscriber():
         self.window_width = 640
         self.window_height = 480
 
+        self.is_stablilizing = False
+        self.start_stable_time = 0
+        self.stable_duration = 0
+        
+        self.boot_time = 0
         self.is_object_detected = False
         self.center_x = None
         self.center_y = None
@@ -16,18 +21,39 @@ class Subscriber():
         self.pwm_forward = 1500
         self.is_arm = False
         self.is_alt_hold = False
+        self.release_gripper = False
         
         self.pub_pwm_lateral = rospy.Publisher('pwm_lateral', Int16, queue_size=10)
         self.pub_pwm_forward = rospy.Publisher('pwm_forward', Int16, queue_size=10)
         self.pub_is_arm = rospy.Publisher('is_arm', Bool, queue_size=10)
         self.pub_is_alt_hold = rospy.Publisher('is_alt_hold', Bool, queue_size=10)
-
+        self.pub_release_gripper = rospy.Publisher('release_gripper', Bool, queue_size=10)
+        
         rospy.Subscriber('is_object_detected', Bool, self.callback_is_object_detected)
         rospy.Subscriber('center_x', Int16, self.callback_center_x)
         rospy.Subscriber('center_y', Int16, self.callback_center_y)
         rospy.Subscriber('base_mode', Int16, self.callback_base_mode)
         rospy.Subscriber('custom_mode', Int16, self.callback_custom_mode)
         rospy.Subscriber('boot_time', Int16, self.callback_boot_time)
+
+    def is_stable_position(self, distance):
+        if 100 <= distance <= 150:
+            if not self.is_stabilizing:
+                self.start_stable_time = self.boot_time
+
+            self.is_stabilizing = True
+        else:
+            self.stable_duration = 0
+            self.is_stabilizing = False
+
+        if self.is_stabilizing:
+            self.stable_duration = self.boot_time - self.start_stable_time
+
+        print(self.stable_duration)
+
+        if self.stable_duration >= 3:
+            print('Release Gripper')
+            self.release_gripper = True
 
     def callback_is_object_detected(self, data):
         self.is_object_detected = data.data
@@ -75,10 +101,13 @@ class Subscriber():
 
         if distance_from_bottom >= 150:
             self.pwm_forward = int(np.interp(distance_from_bottom, (150, 450), (1550, 1600)))
+            self.is_stable_position(distance_from_bottom)
         elif distance_from_bottom <= 100:
             self.pwm_forward = int(np.interp(distance_from_bottom, (0, 100), (1400, 1450)))
+            self.is_stable_position(distance_from_bottom)
         else:
             self.pwm_forward = 1500
+            self.is_stable_position(distance_from_bottom)
 
         if self.pwm_forward >= 1600:
             self.pwm_forward = 1600
@@ -99,13 +128,16 @@ class Subscriber():
         else:
             self.is_alt_hold = False
 
-    def callback_boot_time(self, _):
+    def callback_boot_time(self, data):
+        self.boot_time = data.data
+
         if self.is_object_detected:
             self.pub_pwm_lateral.publish(self.pwm_lateral)
             self.pub_pwm_forward.publish(self.pwm_forward)
         
         self.pub_is_arm.publish(self.is_arm)
         self.pub_is_alt_hold.publish(self.is_alt_hold)
+        self.pub_release_gripper.publish(self.release_gripper)
 
     def spin(self):
         rospy.spin()
