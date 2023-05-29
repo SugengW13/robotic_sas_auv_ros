@@ -40,17 +40,19 @@ class ROV():
     def disarm(self):
         self.master.arducopter_disarm()
 
-        return True
-
     def setMode(self, mode):
         if mode not in self.master.mode_mapping():
             print('Unknown mode : {}'.format(mode))
             print('Try:', list(self.master.mode_mapping().keys()))
             sys.exit(1)
 
-        modeId = self.master.mode_mapping()[mode]
-        print(modeId)
-        self.master.set_mode(modeId)
+        mode_id = self.master.mode_mapping()[mode]
+        
+        self.master.mav.set_mode_send(
+            self.master.target_system,
+            mavutil.mavlink.MAV_MODE_FLAG_CUSTOM_MODE_ENABLED,
+            mode_id
+        )
     
     def setRcValue(self, channel, pwm):
         # RC Input & Output ArduSub

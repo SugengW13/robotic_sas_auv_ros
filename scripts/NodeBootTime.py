@@ -10,7 +10,7 @@ def main():
 
     rospy.init_node('node_boot_time', anonymous=True)
 
-    rate = rospy.Rate(15)
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
         currentTime = time.time()
