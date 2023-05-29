@@ -64,6 +64,9 @@ def callback_is_start(data):
     global is_start
     is_start = data.data
 
+def callback_release_gripper(data):
+    print(data.data)
+
 def callback_boot_time(data):
     global boot_time
 
@@ -75,6 +78,7 @@ def main():
     rospy.Subscriber('is_object_detected', Bool, callback_is_object_detected)
     rospy.Subscriber('pwm_lateral', Int16, callback_pwm_lateral)
     rospy.Subscriber('pwm_forward', Int16, callback_pwm_forward)
+    rospy.Subscriber('release_gripper', Bool, callback_release_gripper)
     rospy.Subscriber('boot_time', Int16, callback_boot_time)
     rospy.Subscriber('is_start', Bool, callback_is_start)
 
