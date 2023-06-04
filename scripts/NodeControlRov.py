@@ -65,7 +65,18 @@ def callback_is_start(data):
     is_start = data.data
 
 def callback_release_gripper(data):
-    print(data.data)
+    open_gripper = data.data
+
+    if open_gripper:
+        print('Open Gripper')
+
+        time.sleep(3)
+
+        print('Surfacing')
+
+        time.sleep(3)
+
+        rov.disarm()
 
 def callback_boot_time(data):
     global boot_time
