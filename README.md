@@ -30,7 +30,7 @@ First, you have to make your own ROS package, [Creating a ROS Package](http://wi
 Afer that, clone the [yolov5](https://github.com/ultralytics/yolov5) repository into your <b>yolov5</b> ROS package.
 
 ```bash
-cd <your_ros_workspace>/src/yolov5
+cd <your_ros_workspace>/src
 git clone https://github.com/ultralytics/yolov5
 cd ../..
 catkin_make
