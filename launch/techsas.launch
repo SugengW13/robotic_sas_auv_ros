@@ -7,5 +7,6 @@
     
     <group ns='techsas'>
         <node pkg='yolov5' type='node_object_detection.py' name='node_object_detection' output='screen' />
+        <!-- <node pkg='yolov5' type='pytorch_detect.py' name='node_object_detection' output='screen' /> -->
     </group>
 </launch>
