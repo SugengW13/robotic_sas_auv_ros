@@ -32,7 +32,7 @@ Afer that, clone the [yolov5](https://github.com/ultralytics/yolov5) repository 
 ```bash
 cd <your_ros_workspace>/src
 git clone https://github.com/ultralytics/yolov5
-cd ../..
+cd ..
 catkin_make
 ```
 
