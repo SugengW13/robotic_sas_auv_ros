@@ -18,7 +18,7 @@ Clone this repository into your ROS workspace.
 
 ```bash
 cd <your_ros_workspace>/src
-git clone https://github.com/SugengW13/TechSAS
+git clone https://github.com/SugengW13/TechSAS-AUV-ROS
 cd ..
 catkin_make
 ```
@@ -30,9 +30,9 @@ First, you have to make your own ROS package, [Creating a ROS Package](http://wi
 Afer that, clone the [yolov5](https://github.com/ultralytics/yolov5) repository into your <b>yolov5</b> ROS package.
 
 ```bash
-cd <your_ros_workspace>/src/yolov5
+cd <your_ros_workspace>/src
 git clone https://github.com/ultralytics/yolov5
-cd ../..
+cd ..
 catkin_make
 ```
 

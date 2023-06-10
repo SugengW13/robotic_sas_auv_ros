@@ -184,7 +184,7 @@ class ROV():
             self.master.target_component,
             mavutil.mavlink.MAV_CMD_DO_GRIPPER,
             0,
-            0, 0, 0, 0, 1000, 0, 0
+            0, 0, 0, 0, 1100, 0, 0
         )
 
     def closeGripper(self):
@@ -193,5 +193,5 @@ class ROV():
             self.master.target_component,
             mavutil.mavlink.MAV_CMD_DO_GRIPPER,
             0,
-            0, 0, 0, 0, 2000, 0, 0
+            0, 0, 0, 0, 1900, 0, 0
         )
