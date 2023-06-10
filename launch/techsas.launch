@@ -1,11 +1,11 @@
 <launch>
-    <group ns='techsas'>
-        <node pkg='techsas' type='node_boot_time.py' name='node_boot_time' output='screen' />
-        <node pkg='techsas' type='node_guidance.py' name='node_guidance' output='screen' />
-        <node pkg='techsas' type='node_control_rov.py' name='node_control_rov' output='screen' />
+    <group ns='auv'>
+        <node pkg='techsas_auv_ros' type='node_boot_time.py' name='node_boot_time' output='screen' />
+        <node pkg='techsas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen' />
+        <node pkg='techsas_auv_ros' type='node_control_rov.py' name='node_control_rov' output='screen' />
     </group>
     
-    <group ns='techsas'>
+    <group ns='auv'>
         <node pkg='yolov5' type='node_object_detection.py' name='node_object_detection' output='screen' />
     </group>
 </launch>
