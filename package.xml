@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>techsas_auv_ros</name>
+  <name>TechSAS_AUV_ROS</name>
   <version>0.0.0</version>
   <description>The TechSAS AUV ROS package</description>
 
