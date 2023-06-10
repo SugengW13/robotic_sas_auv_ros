@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>techsas</name>
+  <name>techsas_auv_ros</name>
   <version>0.0.0</version>
-  <description>The techsas package</description>
+  <description>The TechSAS AUV ROS package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="sugeng_w@todo.todo">sugeng_w</maintainer>
+  <maintainer email="sugengwarsito131001@gmail.com">sugeng_w</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->

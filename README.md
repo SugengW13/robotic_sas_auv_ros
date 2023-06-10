@@ -18,7 +18,7 @@ Clone this repository into your ROS workspace.
 
 ```bash
 cd <your_ros_workspace>/src
-git clone https://github.com/SugengW13/TechSAS
+git clone https://github.com/SugengW13/TechSAS-AUV-ROS
 cd ..
 catkin_make
 ```
