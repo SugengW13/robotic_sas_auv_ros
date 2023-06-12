@@ -29,9 +29,9 @@ class Subscriber():
         self.pub_is_alt_hold = rospy.Publisher('is_alt_hold', Bool, queue_size=10)
         self.pub_release_gripper = rospy.Publisher('release_gripper', Bool, queue_size=10)
         
-        rospy.Subscriber('is_object_detected', Bool, self.callback_is_object_detected)
-        rospy.Subscriber('center_x', Int16, self.callback_center_x)
-        rospy.Subscriber('center_y', Int16, self.callback_center_y)
+        rospy.Subscriber('/yolo/is_object_detected', Bool, self.callback_is_object_detected)
+        rospy.Subscriber('/yolo/center_x', Int16, self.callback_center_x)
+        rospy.Subscriber('/yolo/center_y', Int16, self.callback_center_y)
         rospy.Subscriber('base_mode', Int16, self.callback_base_mode)
         rospy.Subscriber('custom_mode', Int16, self.callback_custom_mode)
         rospy.Subscriber('boot_time', Int16, self.callback_boot_time)

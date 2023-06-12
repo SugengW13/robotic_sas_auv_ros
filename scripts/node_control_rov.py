@@ -86,12 +86,12 @@ def callback_boot_time(data):
 def main():
     rospy.init_node('node_control_rov', anonymous=True)
     
-    rospy.Subscriber('is_object_detected', Bool, callback_is_object_detected)
+    rospy.Subscriber('/yolo/is_object_detected', Bool, callback_is_object_detected)
     rospy.Subscriber('pwm_lateral', Int16, callback_pwm_lateral)
     rospy.Subscriber('pwm_forward', Int16, callback_pwm_forward)
     rospy.Subscriber('release_gripper', Bool, callback_release_gripper)
     rospy.Subscriber('boot_time', Int16, callback_boot_time)
-    rospy.Subscriber('is_start', Bool, callback_is_start)
+    rospy.Subscriber('/yolo/is_start', Bool, callback_is_start)
 
     rospy.spin()
 
