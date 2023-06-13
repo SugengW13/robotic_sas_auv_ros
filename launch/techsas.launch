@@ -12,7 +12,7 @@
         <node pkg='techsas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen' />
         <node pkg='techsas_auv_ros' type='node_control_lateral.py' name='node_control_lateral' output='screen' />
         <node pkg='techsas_auv_ros' type='node_control_forward.py' name='node_control_forward' output='screen' />
-        <!-- <node pkg='techsas_auv_ros' type='node_control_rov.py' name='node_control_rov' output='screen' /> -->
+        <node pkg='techsas_auv_ros' type='node_control_auv.py' name='node_control_auv' output='screen' />
     </group>
     
     <group ns='yolo'>
