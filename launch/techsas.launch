@@ -1,16 +1,18 @@
 <launch>
-    <group ns='rosserial'>
+    <!-- <group ns='rosserial'>
         <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
             <param name="port" value="/dev/ttyACM1"/>
             <param name="baud" value="57600"/>
         </node>
-    </group>
+    </group> -->
 
     <group ns='auv'>
         <node pkg='techsas_auv_ros' type='node_boot_time.py' name='node_boot_time' output='screen' />
         <node pkg='techsas_auv_ros' type='node_navigation.py' name='node_navigation' output='screen' />
         <node pkg='techsas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen' />
-        <node pkg='techsas_auv_ros' type='node_control_rov.py' name='node_control_rov' output='screen' />
+        <node pkg='techsas_auv_ros' type='node_control_lateral.py' name='node_control_lateral' output='screen' />
+        <node pkg='techsas_auv_ros' type='node_control_forward.py' name='node_control_forward' output='screen' />
+        <!-- <node pkg='techsas_auv_ros' type='node_control_rov.py' name='node_control_rov' output='screen' /> -->
     </group>
     
     <group ns='yolo'>
