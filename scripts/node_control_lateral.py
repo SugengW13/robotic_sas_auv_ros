@@ -24,11 +24,11 @@ class Subscriber(object):
     def callback_search_object(self, data):
         self.search_object = data.data
 
+        if self.search_object:
+            self.pwm_lateral = 1500
+
     def callback_distance_from_center(self, data):
         distance = data.data
-
-        if self.search_object:
-            return
         
         if distance >= 50:
             self.pwm_lateral = int(np.interp(distance, (50, 250), (1550, 1600)))
