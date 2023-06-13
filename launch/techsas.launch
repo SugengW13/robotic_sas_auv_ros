@@ -1,10 +1,10 @@
 <launch>
-    <group ns='rosserial'>
+    <!-- <group ns='rosserial'>
         <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
             <param name="port" value="/dev/ttyACM1"/>
             <param name="baud" value="57600"/>
         </node>
-    </group>
+    </group> -->
 
     <group ns='auv'>
         <node pkg='techsas_auv_ros' type='node_boot_time.py' name='node_boot_time' output='screen' />

@@ -2,11 +2,11 @@
 
 import time
 import rospy
-from std_msgs.msg import Int16
+from std_msgs.msg import Float32
 
 def main():
     startTime = time.time()
-    pubBootTime = rospy.Publisher('boot_time', Int16, queue_size=10)
+    pubBootTime = rospy.Publisher('boot_time', Float32, queue_size=10)
 
     rospy.init_node('node_boot_time', anonymous=True)
 
@@ -15,7 +15,7 @@ def main():
     while not rospy.is_shutdown():
         currentTime = time.time()
 
-        bootTime = int(currentTime - startTime)
+        bootTime = currentTime - startTime
 
         pubBootTime.publish(bootTime)
 

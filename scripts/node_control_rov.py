@@ -2,7 +2,7 @@
 
 import time
 import rospy
-from std_msgs.msg import Int16, Bool
+from std_msgs.msg import Int16, Bool, Float32
 from pymavlink import mavutil
 from PyMavlink import ROV
 
@@ -90,7 +90,7 @@ def main():
     rospy.Subscriber('pwm_lateral', Int16, callback_pwm_lateral)
     rospy.Subscriber('pwm_forward', Int16, callback_pwm_forward)
     rospy.Subscriber('release_gripper', Bool, callback_release_gripper)
-    rospy.Subscriber('boot_time', Int16, callback_boot_time)
+    rospy.Subscriber('boot_time', Float32, callback_boot_time)
     rospy.Subscriber('/yolo/is_start', Bool, callback_is_start)
 
     rospy.spin()

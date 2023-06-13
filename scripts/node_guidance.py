@@ -2,7 +2,7 @@
 
 import numpy as np
 import rospy
-from std_msgs.msg import Bool, Int16
+from std_msgs.msg import Bool, Int16, Float32
 
 class Subscriber():
     def __init__(self):
@@ -34,7 +34,7 @@ class Subscriber():
         rospy.Subscriber('/yolo/center_y', Int16, self.callback_center_y)
         rospy.Subscriber('base_mode', Int16, self.callback_base_mode)
         rospy.Subscriber('custom_mode', Int16, self.callback_custom_mode)
-        rospy.Subscriber('boot_time', Int16, self.callback_boot_time)
+        rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
 
     def is_stable_position(self, distance):
         if 100 <= distance <= 150:
