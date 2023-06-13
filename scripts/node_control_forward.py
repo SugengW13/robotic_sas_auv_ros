@@ -12,12 +12,14 @@ class Subscriber(object):
         # guidance
         self.search_object = True
         self.pwm_forward = 1500
+        self.is_object_centered = False
 
         # publisher
         self.pub_pwm_forward = rospy.Publisher('pwm_forward', Int16, queue_size=10)
 
         # subscriber
         rospy.Subscriber('search_object', Bool, self.callback_search_object)
+        rospy.Subscriber('is_object_centered', Bool, self.callback_is_object_centered)
         rospy.Subscriber('distance_from_bottom', Int16, self.callback_distance_from_bottom)
         rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
 
@@ -27,9 +29,16 @@ class Subscriber(object):
         if self.search_object:
             self.pwm_forward = 1500
 
+    def callback_is_object_centered(self, data):
+        self.is_object_centered = data.data
+
     def callback_distance_from_bottom(self, data):
         distance = data.data
         
+        if not self.is_object_centered:
+            self.pwm_forward = 1500
+            return
+
         if distance >= 150:
             self.pwm_forward = int(np.interp(distance, (150, 450), (1550, 1600)))
         elif distance <= 100:
