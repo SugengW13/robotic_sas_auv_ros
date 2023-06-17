@@ -42,9 +42,7 @@ class Subscriber(object):
         elif self.pwm_lateral <= 1400:
             self.pwm_lateral = 1400
 
-    def callback_boot_time(self, data):
-        boot_time = data.data
-
+    def callback_boot_time(self, _):
         self.pub_pwm_lateral.publish(self.pwm_lateral)
 
     def spin(self):
