@@ -31,7 +31,7 @@ class Subscriber(object):
         rospy.Subscriber('/yolo/is_object_detected', Bool, self.callback_is_object_detected)
         rospy.Subscriber('/yolo/center_x', Int16, self.callback_center_x)
         rospy.Subscriber('/yolo/center_y', Int16, self.callback_center_y)
-        rospy.Subscriber('heading', Int16, self.callback_heading)
+        rospy.Subscriber('/heading', Int16, self.callback_heading)
         rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
     
     def callback_is_start(self, data):

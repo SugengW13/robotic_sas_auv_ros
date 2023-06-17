@@ -34,13 +34,12 @@ class Subscriber():
 
     def stabilizing_position(self):
         if not self.is_start:
-            print('returnnnn')
             return
 
         if not self.is_object_centered:
             return
-        
-        print(self.is_stabilizing)
+
+        print(self.stable_duration)
 
         distance = self.distance_from_bottom
         
@@ -65,6 +64,9 @@ class Subscriber():
         self.is_start = data.data
 
     def callback_is_object_detected(self, data):
+        if not self.is_start:
+            return
+
         self.is_object_detected = data.data
 
         if not self.is_object_detected:
@@ -73,6 +75,9 @@ class Subscriber():
             self.search_object = False
     
     def callback_distance_from_center(self, data):
+        if not self.is_start:
+            return
+
         if not self.is_object_detected:
             return
 
@@ -84,6 +89,9 @@ class Subscriber():
             self.is_object_centered = False
 
     def callback_distance_from_bottom(self, data):
+        if not self.is_start:
+            return
+        
         if not self.is_object_detected:
             return
         
@@ -93,6 +101,9 @@ class Subscriber():
 
     def callback_boot_time(self, data):
         self.boot_time = data.data
+
+        if not self.is_start:
+            return
         
         self.pub_search_object.publish(self.search_object)
         self.pub_is_object_centered.publish(self.is_object_centered)
