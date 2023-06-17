@@ -26,7 +26,6 @@ class Subscriber(object):
             return
 
         self.pwm_forward = data.data
-        print('Forward', data.data)
         self.rov.setRcValue(5, self.pwm_forward)
 
     def callback_pwm_lateral(self, data):
@@ -34,14 +33,13 @@ class Subscriber(object):
             return
 
         self.pwm_lateral = data.data
-        print('Lateral', data.data)
         self.rov.setRcValue(6, self.pwm_lateral)
 
     def spin(self):
         rospy.spin()
 
 def main():
-    master = mavutil.mavlink_connection('/dev/ttyACM2', baud=115200)
+    master = mavutil.mavlink_connection('/dev/ttyACM0', baud=115200)
     # master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 
     master.wait_heartbeat()
