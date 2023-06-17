@@ -49,9 +49,7 @@ class Subscriber(object):
         if self.pwm_forward >= 1600:
             self.pwm_forward = 1600
 
-    def callback_boot_time(self, data):
-        boot_time = data.data
-
+    def callback_boot_time(self, _):
         self.pub_pwm_forward.publish(self.pwm_forward)
 
     def spin(self):
