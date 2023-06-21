@@ -85,8 +85,6 @@ class Subscriber(object):
         elif self.error_heading < -180:
             self.error_heading += 360
 
-        print(self.error_heading)
-
     def callback_altitude(self, data):
         if not self.is_start:
             return
