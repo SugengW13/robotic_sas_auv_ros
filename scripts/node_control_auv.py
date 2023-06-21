@@ -10,16 +10,30 @@ class Subscriber(object):
         self.rov = rov
 
         self.is_start = False
+        self.pwm_throttle = 1500
         self.pwm_forward= 1500
         self.pwm_lateral = 1500
 
         # subscriber
         rospy.Subscriber('/yolo/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('pwm_throttle', Int16, self.callback_pwm_throttle)
         rospy.Subscriber('pwm_lateral', Int16, self.callback_pwm_lateral)
         rospy.Subscriber('pwm_forward', Int16, self.callback_pwm_forward)
 
     def callback_is_start(self, data):
+        print(data)
         self.is_start = data.data
+
+        if self.is_start:
+            self.rov.arm()
+
+    def callback_pwm_throttle(self, data):
+        if not self.is_start:
+            return
+        
+        self.pwm_throttle = data.data
+        print(self.pwm_throttle)
+        self.rov.setRcValue(3, self.pwm_throttle)
 
     def callback_pwm_forward(self, data):
         if not self.is_start:
@@ -39,16 +53,10 @@ class Subscriber(object):
         rospy.spin()
 
 def main():
-    master = mavutil.mavlink_connection('/dev/ttyACM0', baud=115200)
+    master = mavutil.mavlink_connection('/dev/ttyACM1', baud=115200)
     # master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 
-    master.wait_heartbeat()
-
     rov = ROV(master)
-
-    rov.arm()
-    
-    # rov.setMode('ALT_HOLD')
 
     rospy.init_node('node_control_auv', anonymous=True)
 
