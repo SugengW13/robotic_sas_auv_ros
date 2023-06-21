@@ -6,11 +6,8 @@ from std_msgs.msg import Int16, Float32
 from pymavlink import mavutil
 from PyMavlink import ROV
 
-import os
-os.environ['MAVLINK20'] = ''
-
-# master = mavutil.mavlink_connection("/dev/ttyACM0", baud=115200)
-master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+master = mavutil.mavlink_connection("/dev/ttyACM1", baud=115200)
+# master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 
 master.wait_heartbeat()
 
@@ -24,21 +21,19 @@ def main():
 
     rospy.init_node('node_messeges', anonymous=True)
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(30)
 
     while not rospy.is_shutdown():
         try:
-            heart_beat = rov.getDataMessage('HEARTBEAT')
-            base_mode = heart_beat.base_mode
-            custom_mode = heart_beat.custom_mode
+            heartbeat = rov.getDataMessage('HEARTBEAT')
+            base_mode = heartbeat.base_mode
+            custom_mode = heartbeat.custom_mode
 
             ahrs2 = rov.getDataMessage('AHRS2')
             altitude = round(ahrs2.altitude, 4)
 
             vfr_hud = rov.getDataMessage('VFR_HUD')
             heading = vfr_hud.heading
-
-            print(altitude, heading)
 
             pub_base_mode.publish(base_mode)
             pub_custom_mode.publish(custom_mode)
