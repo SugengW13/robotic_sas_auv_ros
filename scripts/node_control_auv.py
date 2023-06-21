@@ -10,11 +10,13 @@ class Subscriber(object):
         self.rov = rov
 
         self.is_start = False
+        self.pwm_throttle = 1500
         self.pwm_forward= 1500
         self.pwm_lateral = 1500
 
         # subscriber
         rospy.Subscriber('/yolo/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('pwm_throttle', Int16, self.callback_pwm_throttle)
         rospy.Subscriber('pwm_lateral', Int16, self.callback_pwm_lateral)
         rospy.Subscriber('pwm_forward', Int16, self.callback_pwm_forward)
 
@@ -24,6 +26,14 @@ class Subscriber(object):
 
         if self.is_start:
             self.rov.arm()
+
+    def callback_pwm_throttle(self, data):
+        if not self.is_start:
+            return
+        
+        self.pwm_throttle = data.data
+        print(self.pwm_throttle)
+        self.rov.setRcValue(3, self.pwm_throttle)
 
     def callback_pwm_forward(self, data):
         if not self.is_start:
