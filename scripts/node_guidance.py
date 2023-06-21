@@ -15,6 +15,7 @@ class Subscriber():
 
         self.is_object_detected = False
         self.is_stable_altitude = False
+        self.is_stable_heading = False
         self.distance_from_center = 0
         self.distance_from_bottom = 0
         self.temp_gripper_command = ''
@@ -26,6 +27,7 @@ class Subscriber():
         self.pub_search_object = rospy.Publisher('search_object', Bool, queue_size=10)
         self.pub_is_object_centered = rospy.Publisher('is_object_centered', Bool, queue_size=10)
         self.pub_is_stable_altitude = rospy.Publisher('is_stable_altitude', Bool, queue_size=10)
+        self.pub_is_stable_heading = rospy.Publisher('is_stable_heading', Bool, queue_size=10)
         self.pub_gripper_command = rospy.Publisher('gripper_command', String, queue_size=10)
 
         rospy.Subscriber('/yolo/is_start', Bool, self.callback_is_start)
@@ -33,6 +35,7 @@ class Subscriber():
         rospy.Subscriber('distance_from_center', Int16, self.callback_distance_from_center)
         rospy.Subscriber('distance_from_bottom', Int16, self.callback_distance_from_bottom)
         rospy.Subscriber('error_altitude', Float32, self.callback_error_altitude)
+        rospy.Subscriber('error_heading', Int16, self.callback_error_heading)
         rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
 
     def stabilizing_position(self):
@@ -102,6 +105,17 @@ class Subscriber():
 
         self.stabilizing_position()
 
+    def callback_error_heading(self, data):
+        if not self.is_start:
+            return
+        
+        error_heading = data.data
+
+        if -2 < error_heading < 2:
+            self.is_stable_heading = True
+        else:
+            self.is_stable_heading = False
+
     def callback_error_altitude(self, data):
         if not self.is_start:
             return
@@ -120,6 +134,7 @@ class Subscriber():
             return
         
         self.pub_is_stable_altitude.publish(self.is_stable_altitude)
+        self.pub_is_stable_heading.publish(self.is_stable_heading)
         self.pub_search_object.publish(self.search_object)
         self.pub_is_object_centered.publish(self.is_object_centered)
 

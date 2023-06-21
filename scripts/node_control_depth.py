@@ -7,6 +7,7 @@ from std_msgs.msg import Float32, Int16, Bool
 class Subscriber(object):
     def __init__(self):
         self.boot_time = 0
+        self.is_stable_altitude = False
 
         self.pwm_throttle = 0
 
