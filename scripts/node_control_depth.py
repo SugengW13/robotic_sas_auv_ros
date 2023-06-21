@@ -7,28 +7,33 @@ from std_msgs.msg import Float32, Int16, Bool
 class Subscriber(object):
     def __init__(self):
         self.boot_time = 0
-        self.is_stable_depth = False
 
         self.pwm_throttle = 0
 
         self.pub_pwm_throttle = rospy.Publisher('pwm_throttle', Int16, queue_size=10)
-
-        rospy.Subscriber('is_stable_depth', Bool, self.callback_is_stable_depth)
-        rospy.Subscriber('error_depth', Float32, self.callback_error_depth)
+        
+        rospy.Subscriber('error_altitude', Float32, self.callback_error_altitude)
+        rospy.Subscriber('is_stable_altitude', Bool, self.callback_is_stable_altitude)
         rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
 
-    def calculate_pwm(self, current_depth):
-        if not self.is_stable_depth:
-            # Calculate PWM
-            self.pwm_throttle = int(np.interp(current_depth, (), ()))
-        else:
+    def callback_error_altitude(self, data):
+        error = data.data
+
+        if self.is_stable_altitude:
             self.pwm_throttle = 1500
+        else:
+            if error >= 0.05:
+                self.pwm_throttle = int(np.interp(error, (0.05, 0.5), (1525, 1600)))
+            elif error <= -0.05:
+                self.pwm_throttle = int(np.interp(error, (-0.5, -0.05), (1400, 1475)))
 
-    def callback_is_stable_depth(self, data):
-        self.is_stable_depth = data.data
-
-    def callback_error_depth(self, data):
-        self.calculate_pwm(data.data)
+        if self.pwm_throttle >= 1600:
+            self.pwm_throttle = 1600
+        elif self.pwm_throttle <= 1400:
+            self.pwm_throttle = 1400
+        
+    def callback_is_stable_altitude(self, data):
+        self.is_stable_altitude = data.data
 
     def callback_boot_time(self, _):
         self.pub_pwm_throttle.publish(self.pwm_throttle)
