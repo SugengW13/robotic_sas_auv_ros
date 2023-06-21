@@ -24,19 +24,22 @@ class Subscriber(object):
     def callback_error_heading(self, data):
         error = data.data
 
-        term_p = self.kp * error
-        term_d = self.kd * (error - self.last_error)
+        if self.is_stable_heading:
+            self.pwm_yaw = 1500
+        else:
+            term_p = self.kp * error
+            term_d = self.kd * (error - self.last_error)
 
-        pid = term_p + term_d
+            pid = term_p + term_d
 
-        self.last_error = error
+            self.last_error = error
 
-        if pid >= 100:
-            pid = 100
-        elif pid <= -100:
-            pid = -100
-        
-        self.pwm_yaw = int(1500 + pid)
+            if pid >= 100:
+                pid = 100
+            elif pid <= -100:
+                pid = -100
+            
+            self.pwm_yaw = int(1500 + pid)
 
     def callback_is_stable_heading(self, data):
         self.is_stable_heading = data.data
