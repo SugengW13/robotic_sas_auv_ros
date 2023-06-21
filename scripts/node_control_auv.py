@@ -32,7 +32,7 @@ class Subscriber(object):
             return
         
         self.pwm_throttle = data.data
-        print(self.pwm_throttle)
+        
         self.rov.setRcValue(3, self.pwm_throttle)
 
     def callback_pwm_forward(self, data):

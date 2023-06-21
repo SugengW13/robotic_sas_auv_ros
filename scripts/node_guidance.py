@@ -33,6 +33,7 @@ class Subscriber():
         rospy.Subscriber('distance_from_center', Int16, self.callback_distance_from_center)
         rospy.Subscriber('distance_from_bottom', Int16, self.callback_distance_from_bottom)
         rospy.Subscriber('error_altitude', Float32, self.callback_error_altitude)
+        rospy.Subscriber('error_heading', Int16, self.callback_error_heading)
         rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
 
     def stabilizing_position(self):
@@ -101,6 +102,12 @@ class Subscriber():
         self.distance_from_bottom = data.data
 
         self.stabilizing_position()
+
+    def callback_error_heading(self, data):
+        if not self.is_start:
+            return
+        
+        print(data.data)
 
     def callback_error_altitude(self, data):
         if not self.is_start:
