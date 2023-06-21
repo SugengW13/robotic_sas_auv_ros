@@ -22,9 +22,13 @@ class Subscriber(object):
         # rosserial
         self.heading = 0
 
+        self.target_altitude = -0.5
+        self.error_altitude = 0
+
         # publisher
         self.pub_distance_from_center = rospy.Publisher('distance_from_center', Int16, queue_size=10)
         self.pub_distance_from_bottom = rospy.Publisher('distance_from_bottom', Int16, queue_size=10)
+        self.pub_error_altitude = rospy.Publisher('error_altitude', Float32, queue_size=10)
 
         # subscriber
         rospy.Subscriber('/yolo/is_start', Bool, self.callback_is_start)
@@ -32,6 +36,7 @@ class Subscriber(object):
         rospy.Subscriber('/yolo/center_x', Int16, self.callback_center_x)
         rospy.Subscriber('/yolo/center_y', Int16, self.callback_center_y)
         rospy.Subscriber('/heading', Int16, self.callback_heading)
+        rospy.Subscriber('altitude', Float32, self.callback_altitude)
         rospy.Subscriber('boot_time', Float32, self.callback_boot_time)
     
     def callback_is_start(self, data):
@@ -70,12 +75,22 @@ class Subscriber(object):
             return
 
         self.heading = data.data
+
+    def callback_altitude(self, data):
+        if not self.is_start:
+            return
+        
+        altitude = data.data
+        
+        self.error_altitude = altitude - self.target_altitude
     
     def callback_boot_time(self, data):
         self.boot_time = data.data
 
         if not self.is_start:
             return
+        
+        self.pub_error_altitude.publish(self.error_altitude)
 
         if self.is_object_detected:
             self.pub_distance_from_center.publish(self.distance_from_center)
