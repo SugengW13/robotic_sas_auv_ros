@@ -1,12 +1,22 @@
 <launch>
-    <group ns='rosserial'>
-        <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
-            <param name="port" value="/dev/ttyACM0"/>
-            <param name="baud" value="57600"/>
-        </node>
-    </group>
+    <arg name='pixhawk_connection' default='usb' />
+    <arg name='pixhawk_address' default='/dev/ttyACM0' />
 
+    <arg name='video_source' default='0' />
+    <arg name='weights' default='techsas.pt' />
+    <arg name='data' default='data/techsas.yaml' />
+
+    <!-- <group ns='rosserial'>
+        <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
+            <param name='port' value='/dev/ttyACM0'/>
+            <param name='baud' value='57600'/>
+        </node>
+    </group> -->
+    
     <group ns='auv'>
+        <param name='pixhawk_connection' value='$(arg pixhawk_connection)' />
+        <param name='pixhawk_address' value='$(arg pixhawk_address)' />
+        
         <node pkg='techsas_auv_ros' type='node_boot_time.py' name='node_boot_time' output='screen' />
         <node pkg='techsas_auv_ros' type='node_messages.py' name='node_messages' output='screen' />
         <node pkg='techsas_auv_ros' type='node_navigation.py' name='node_navigation' output='screen' />
@@ -19,6 +29,10 @@
     </group>
     
     <group ns='yolo'>
+        <param name='video_source' value='$(arg video_source)' />
+        <param name='weights' value='$(arg weights)' />
+        <param name='data' value='$(arg data)' />
+
         <node pkg='yolov5' type='node_object_detection.py' name='node_object_detection' output='screen' />
     </group>
 </launch>
