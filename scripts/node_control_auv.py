@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import rospy
 from std_msgs.msg import Int16, Bool
 from pymavlink import mavutil
@@ -62,8 +63,13 @@ class Subscriber(object):
         rospy.spin()
 
 def main():
-    master = mavutil.mavlink_connection('/dev/ttyACM1', baud=115200)
-    # master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+    pixhawk_connection = rospy.get_param('/auv/pixhawk_connection')
+    pixhawk_address = rospy.get_param('/auv/pixhawk_address')
+
+    if pixhawk_connection == 'usb':
+        master = mavutil.mavlink_connection(pixhawk_address, baud=115200)
+    else:
+        master = mavutil.mavlink_connection(pixhawk_address)
 
     rov = ROV(master)
 
