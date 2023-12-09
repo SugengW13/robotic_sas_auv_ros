@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(techsas_auv_ros)
+project(robotic_sas_auv_ros)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -51,7 +51,6 @@ add_message_files(
   FILES
 #   Message1.msg
 #   Message2.msg
-  Coordinate.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -59,7 +58,6 @@ add_service_files(
   FILES
 #   Service1.srv
 #   Service2.srv
-  CalculatePwm.srv
 )
 
 ## Generate actions in the 'action' folder
