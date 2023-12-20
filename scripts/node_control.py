@@ -1,51 +1,68 @@
 #!/usr/bin/env python3
 
 import rospy
-import time
 from std_msgs.msg import Int16, Float32
 
+class Subscriber():
+    def __init__(self):
+        self.pwm_thr_1 = 1500
+        self.pwm_thr_2 = 1500
+        self.pwm_thr_3 = 1500
+        self.pwm_thr_4 = 1500
+        self.pwm_thr_5 = 1500
+        self.pwm_thr_6 = 1500
+        self.pwm_thr_7 = 1500
+        self.pwm_thr_8 = 1500
+
+        # Publisher
+        self.pub_pwm_thr_1 = rospy.Publisher('pwm_thr_1', Int16, queue_size=10)
+        self.pub_pwm_thr_2 = rospy.Publisher('pwm_thr_2', Int16, queue_size=10)
+        self.pub_pwm_thr_3 = rospy.Publisher('pwm_thr_3', Int16, queue_size=10)
+        self.pub_pwm_thr_4 = rospy.Publisher('pwm_thr_4', Int16, queue_size=10)
+        self.pub_pwm_thr_5 = rospy.Publisher('pwm_thr_5', Int16, queue_size=10)
+        self.pub_pwm_thr_6 = rospy.Publisher('pwm_thr_6', Int16, queue_size=10)
+        self.pub_pwm_thr_7 = rospy.Publisher('pwm_thr_7', Int16, queue_size=10)
+        self.pub_pwm_thr_8 = rospy.Publisher('pwm_thr_8', Int16, queue_size=10)
+
+        # Subscriber
+        rospy.Subscriber('error_roll', Int16, self.callback_error_roll)
+        rospy.Subscriber('error_pitch', Int16, self.callback_error_pitch)
+        rospy.Subscriber('error_yaw', Int16, self.callback_error_yaw)
+        rospy.Subscriber('error_depth', Float32, self.callback_error_depth)
+
+    def callback_error_roll(self, data):
+        # Kalkulasi PID
+        print('Calculate PID Roll')
+
+    def callback_error_pitch(self, data):
+        # Kalkulasi PID
+        print('Calculate PID Pitch')
+
+    def callback_error_yaw(self, data):
+        # Kalkulasi PID
+        print('Calculate PID Yaw')
+
+    def callback_error_depth(self, data):
+        # Kalkulasi PID
+        print('Calculate PID Depth')
+
+    def spin(self):
+        self.pub_pwm_thr_1.publish(self.pwm_thr_1)
+        self.pub_pwm_thr_2.publish(self.pwm_thr_2)
+        self.pub_pwm_thr_3.publish(self.pwm_thr_3)
+        self.pub_pwm_thr_4.publish(self.pwm_thr_4)
+        self.pub_pwm_thr_5.publish(self.pwm_thr_5)
+        self.pub_pwm_thr_6.publish(self.pwm_thr_6)
+        self.pub_pwm_thr_7.publish(self.pwm_thr_7)
+        self.pub_pwm_thr_8.publish(self.pwm_thr_8)
+        rospy.spin()
+
 def main():
-    duration = 10
-    start_time = time.time()
-
-    pwm_thr_1 = 0
-    pwm_thr_2 = 0
-    pwm_thr_3 = 0
-    pwm_thr_4 = 0
-    pwm_thr_5 = 0
-    pwm_thr_6 = 0
-    pwm_thr_7 = 0
-    pwm_thr_8 = 0
-
-    pub_pwm_thr_1 = rospy.Publisher('pwm_thr_1', Int16, queue_size=10)
-    pub_pwm_thr_2 = rospy.Publisher('pwm_thr_2', Int16, queue_size=10)
-    pub_pwm_thr_3 = rospy.Publisher('pwm_thr_3', Int16, queue_size=10)
-    pub_pwm_thr_4 = rospy.Publisher('pwm_thr_4', Int16, queue_size=10)
-    pub_pwm_thr_5 = rospy.Publisher('pwm_thr_5', Int16, queue_size=10)
-    pub_pwm_thr_6 = rospy.Publisher('pwm_thr_6', Int16, queue_size=10)
-    pub_pwm_thr_7 = rospy.Publisher('pwm_thr_7', Int16, queue_size=10)
-    pub_pwm_thr_8 = rospy.Publisher('pwm_thr_8', Int16, queue_size=10)
-
-
     rospy.init_node('node_control', anonymous=True)
 
-    rate = rospy.Rate(10)
+    subscriber = Subscriber()
 
-    while not rospy.is_shutdown() and time.time() - start_time < duration if duration else True:
-        pub_pwm_thr_1.publish(pwm_thr_1)
-        pub_pwm_thr_2.publish(pwm_thr_2)
-        pub_pwm_thr_3.publish(pwm_thr_3)
-        pub_pwm_thr_4.publish(pwm_thr_4)
-        pub_pwm_thr_5.publish(pwm_thr_5)
-        pub_pwm_thr_6.publish(pwm_thr_6)
-        pub_pwm_thr_7.publish(pwm_thr_7)
-        pub_pwm_thr_8.publish(pwm_thr_8)
-        
-        
-        rate.sleep()
+    subscriber.spin()
 
 if __name__ == '__main__':
-    try:
-        main()
-    except rospy.ROSInterruptException:
-        pass
+    main()
