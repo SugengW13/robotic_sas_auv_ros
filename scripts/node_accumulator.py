@@ -12,10 +12,10 @@ class Subscriber():
         self.pub_depth = rospy.Publisher('depth', Float32, queue_size=10)
 
         # Subscriber
-        rospy.Subscriber('/arduino/bno_roll', Int16, self.callback_bno_roll)
-        rospy.Subscriber('/arduino/bno_pitch', Int16, self.callback_bno_pitch)
-        rospy.Subscriber('/arduino/bno_yaw', Int16, self.callback_bno_yaw)
-        rospy.Subscriber('/arduino/br_depth', Float32, self.callback_br_depth)
+        rospy.Subscriber('bno_roll', Int16, self.callback_bno_roll)
+        rospy.Subscriber('bno_pitch', Int16, self.callback_bno_pitch)
+        rospy.Subscriber('bno_yaw', Int16, self.callback_bno_yaw)
+        rospy.Subscriber('br_depth', Float32, self.callback_br_depth)
 
     def callback_bno_roll(self, data):
         self.pub_roll.publish(data.data)
@@ -33,7 +33,7 @@ class Subscriber():
         rospy.spin()
 
 def main():
-    rospy.init_node('node_guidance', anonymous=True)
+    rospy.init_node('node_accumulator', anonymous=True)
 
     subscriber = Subscriber()
 
