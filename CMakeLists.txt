@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(techsas_auv_ros)
+project(robotic_sas_auv_ros)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
