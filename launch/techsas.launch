@@ -1,5 +1,15 @@
 <launch>
-    <node pkg='robotic_sas_auv_ros' type='node_accumulator.py' name='node_accumulator' output='screen'/>
-    <node pkg='robotic_sas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen'/>
-    <node pkg='robotic_sas_auv_ros' type='node_navigation.py' name='node_navigation' output='screen'/>
+    <group ns='arduino'>
+        <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
+            <param name='port' value='/dev/ttyACM0'/>
+            <param name='baud' value='57600'/>
+        </node>
+    </group>
+
+    <group ns='nuc'>
+        <node pkg='robotic_sas_auv_ros' type='node_accumulator.py' name='node_accumulator' output='screen'/>
+        <node pkg='robotic_sas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen'/>
+        <node pkg='robotic_sas_auv_ros' type='node_navigation.py' name='node_navigation' output='screen'/>
+        <node pkg='robotic_sas_auv_ros' type='node_control.py' name='node_control' output='screen'/>
+    </group>
 </launch>
