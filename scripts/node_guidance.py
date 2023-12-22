@@ -5,7 +5,7 @@ import time
 from std_msgs.msg import Int16, Float32
 
 def main():
-    duration = 10
+    duration = False
     start_time = time.time()
 
     target_roll = 0
