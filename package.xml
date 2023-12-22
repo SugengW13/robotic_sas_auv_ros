@@ -2,7 +2,7 @@
 <package format="2">
   <name>robotic_sas_auv_ros</name>
   <version>0.0.0</version>
-  <description>The TechSAS AUV ROS package</description>
+  <description>Robotic SAS AUV ROS Package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
