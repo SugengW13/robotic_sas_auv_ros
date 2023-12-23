@@ -55,11 +55,12 @@ class Subscriber():
     def callback_target_depth(self, data):
         self.error_depth = data.data - self.depth
 
-    def callback_is_start(self, _):
-        self.pub_error_roll.publish(self.error_roll)
-        self.pub_error_pitch.publish(self.error_pitch)
-        self.pub_error_yaw.publish(self.error_yaw)
-        self.pub_error_depth.publish(self.error_depth)
+    def callback_is_start(self, data):
+        if data.data:
+            self.pub_error_roll.publish(self.error_roll)
+            self.pub_error_pitch.publish(self.error_pitch)
+            self.pub_error_yaw.publish(self.error_yaw)
+            self.pub_error_depth.publish(self.error_depth)
 
     def spin(self):
         rospy.spin()
