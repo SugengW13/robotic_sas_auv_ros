@@ -9,7 +9,7 @@
         </node>
     </group>
 
-    <arg name='pwm' default='0' />
+    <arg name='pwm' default='100' />
     <arg name='duration' default='5' />
     <arg name='movement' default='surge' />
 
