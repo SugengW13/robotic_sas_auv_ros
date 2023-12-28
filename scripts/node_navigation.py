@@ -21,10 +21,16 @@ class Subscriber():
         self.set_point = data
 
     def callback_sensor(self, data):
-        self.error.roll = data.roll - self.set_point.roll
-        self.error.pitch = data.pitch - self.set_point.pitch
-        self.error.yaw = data.yaw - self.set_point.yaw
-        self.error.depth = data.depth - self.set_point.depth
+        error_roll = data.roll - self.set_point.roll
+        error_pitch = data.pitch - self.set_point.pitch
+        error_yaw = data.yaw - self.set_point.yaw
+        error_depth = self.set_point.depth - data.depth
+
+        # Validate stabilize position
+        self.error.roll = 0 if (-1 <= error_roll <= 1) else error_roll
+        self.error.pitch = 0 if (-1 <= error_pitch <= 1) else error_pitch
+        self.error.yaw = 0 if (-1 <= error_yaw <= 1) else error_yaw
+        self.error.depth = 0 if (-0.05 <= error_depth <= 0.05) else error_depth
 
     def callback_is_start(self, data):
         if data.data:

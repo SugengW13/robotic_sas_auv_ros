@@ -53,6 +53,7 @@ add_message_files(
   Actuator.msg
   SetPoint.msg
   Error.msg
+  IsStable.msg
 )
 
 ## Generate services in the 'srv' folder
