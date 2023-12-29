@@ -2,7 +2,7 @@
 
 import rospy
 import time
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 from robotic_sas_auv_ros.msg import SetPoint
 
 class Subscriber():
@@ -12,9 +12,9 @@ class Subscriber():
 
         self.set_point = SetPoint()
         self.set_point.roll = 0
-        self.set_point.pitch = 0
-        self.set_point.yaw = 15
-        self.set_point.depth = -0.6
+        self.set_point.pitch = 75
+        self.set_point.yaw = 0
+        self.set_point.depth = -0.7
 
         self.rate = rospy.Rate(10)
 
@@ -22,6 +22,7 @@ class Subscriber():
 
         self.pub_is_start = rospy.Publisher('is_start', Bool, queue_size=10)
         self.pub_set_point = rospy.Publisher('set_point', SetPoint, queue_size=10)
+        self.pub_movement = rospy.Publisher('movement', String, queue_size=10)
 
         rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
 
