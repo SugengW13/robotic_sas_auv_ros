@@ -51,10 +51,10 @@ class Movement():
         self.publish()
 
     def roll(self, pwm):
-        self.pwm_actuator.thruster_5 = 1500 - pwm
-        self.pwm_actuator.thruster_6 = 1500 + pwm
-        self.pwm_actuator.thruster_7 = 1500 - pwm
-        self.pwm_actuator.thruster_8 = 1500 + pwm
+        self.pwm_actuator.thruster_5 = 1500 + pwm
+        self.pwm_actuator.thruster_6 = 1500 - pwm
+        self.pwm_actuator.thruster_7 = 1500 + pwm
+        self.pwm_actuator.thruster_8 = 1500 - pwm
         self.publish()
 
     def pitch(self, pwm):
@@ -103,10 +103,10 @@ class Subscriber():
     def stabilize_roll(self, error):
         self.pwm_roll = self.pid_roll(error)
 
-        if self.pwm_roll >= 100:
-            self.pwm_roll = 100
-        elif self.pwm_roll <= -100:
-            self.pwm_roll = -100
+        if self.pwm_roll >= 50:
+            self.pwm_roll = 50
+        elif self.pwm_roll <= -50:
+            self.pwm_roll = -50
 
         rospy.loginfo('PWM Roll %s' % self.pwm_roll)
         self.movement.roll(self.pwm_roll)
@@ -114,10 +114,10 @@ class Subscriber():
     def stabilize_pitch(self, error):
         self.pwm_pitch = self.pid_pitch(error)
 
-        if self.pwm_pitch >= 100:
-            self.pwm_pitch = 100
-        elif self.pwm_pitch <= -100:
-            self.pwm_pitch = -100
+        if self.pwm_pitch >= 50:
+            self.pwm_pitch = 50
+        elif self.pwm_pitch <= -50:
+            self.pwm_pitch = -50
 
         rospy.loginfo('PWM Pitch %s' % self.pwm_pitch)
         self.movement.pitch(self.pwm_pitch)
@@ -126,10 +126,10 @@ class Subscriber():
     def stabilize_yaw(self, error):
         self.pwm_yaw = self.pid_yaw(error)
 
-        if self.pwm_yaw >= 100:
-            self.pwm_yaw = 100
-        elif self.pwm_yaw <= -100:
-            self.pwm_yaw = -100
+        if self.pwm_yaw >= 50:
+            self.pwm_yaw = 50
+        elif self.pwm_yaw <= -50:
+            self.pwm_yaw = -50
 
         rospy.loginfo('PWM Yaw %s' % self.pwm_yaw)
         self.movement.yaw(self.pwm_yaw)
@@ -137,17 +137,17 @@ class Subscriber():
     def stabilize_depth(self, error):
         self.pwm_heave = self.pid_heave(error)
         
-        if self.pwm_heave >= 100:
-            self.pwm_heave = 100
-        elif self.pwm_heave <= -100:
-            self.pwm_heave = -100
+        if self.pwm_heave >= 50:
+            self.pwm_heave = 50
+        elif self.pwm_heave <= -50:
+            self.pwm_heave = -50
 
         rospy.loginfo('PWM Heave %s' % self.pwm_heave)
         self.movement.heave(self.pwm_heave)
 
     def callback_error(self, data):
-        self.stabilize_roll(data.roll)
-        self.stabilize_pitch(data.pitch)
+        # self.stabilize_roll(data.roll)
+        # self.stabilize_pitch(data.pitch)
         self.stabilize_yaw(data.yaw)
         self.stabilize_depth(data.depth)
 
