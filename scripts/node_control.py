@@ -146,9 +146,9 @@ class Subscriber():
         self.movement.heave(self.pwm_heave)
 
     def callback_error(self, data):
-        # self.stabilize_roll(data.roll)
-        # self.stabilize_pitch(data.pitch)
-        # self.stabilize_yaw(data.yaw)
+        self.stabilize_roll(data.roll)
+        self.stabilize_pitch(data.pitch)
+        self.stabilize_yaw(data.yaw)
         self.stabilize_depth(data.depth)
 
     def callback_is_start(self, data):
