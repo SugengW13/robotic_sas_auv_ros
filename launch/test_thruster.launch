@@ -1,14 +1,4 @@
 <launch>
-    <arg name='port' default='/dev/ttyACM0' />
-    <arg name='baud' default='57600' />
-
-    <group ns='arduino'>
-        <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
-            <param name='port' value='$(arg port)'/>
-            <param name='baud' value='$(arg baud)'/>
-        </node>
-    </group>
-
     <arg name='pwm' default='100' />
     <arg name='duration' default='5' />
     <arg name='movement' default='surge' />
