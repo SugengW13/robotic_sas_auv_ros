@@ -1,0 +1,10 @@
+<launch>
+    <arg name='duration' default='5' />
+
+    <group ns='nuc'>
+        <node pkg='robotic_sas_auv_ros' type='node_accumulator.py' name='node_accumulator' output='screen'/>
+        <node pkg='robotic_sas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen'/>
+        <node pkg='robotic_sas_auv_ros' type='node_navigation.py' name='node_navigation' output='screen'/>
+        <node pkg='robotic_sas_auv_ros' type='node_control.py' name='node_control' output='screen'/>
+    </group>
+</launch>
