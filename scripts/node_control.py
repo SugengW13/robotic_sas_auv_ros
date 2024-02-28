@@ -1,62 +1,163 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Bool, Int16, Float32
+import time
+from simple_pid import PID
+from std_msgs.msg import Bool
+from robotic_sas_auv_ros.msg import Error
+from robotic_sas_auv_ros.msg import Actuator
+
+class Movement():
+    def __init__(self):
+        self.pwm_actuator = Actuator()
+        self.pwm_actuator.thruster_1 = 1500
+        self.pwm_actuator.thruster_2 = 1500
+        self.pwm_actuator.thruster_3 = 1500
+        self.pwm_actuator.thruster_4 = 1500
+        self.pwm_actuator.thruster_5 = 1500
+        self.pwm_actuator.thruster_6 = 1500
+        self.pwm_actuator.thruster_7 = 1500
+        self.pwm_actuator.thruster_8 = 1500
+
+        # Publisher
+        self.pub_pwm_actuator = rospy.Publisher('pwm_actuator', Actuator, queue_size=10)
+
+    def surge(self, pwm):
+        self.pwm_actuator.thruster_1 = 1500 + pwm
+        self.pwm_actuator.thruster_2 = 1500 + pwm
+        self.pwm_actuator.thruster_3 = 1500 + pwm
+        self.pwm_actuator.thruster_4 = 1500 + pwm
+        self.publish()
+
+    def sway(self, pwm):
+        self.pwm_actuator.thruster_1 = 1500 - pwm
+        self.pwm_actuator.thruster_2 = 1500 + pwm
+        self.pwm_actuator.thruster_3 = 1500 + pwm
+        self.pwm_actuator.thruster_4 = 1500 - pwm
+        self.publish()
+
+    def yaw(self, pwm):
+        self.pwm_actuator.thruster_1 = 1500 - pwm
+        self.pwm_actuator.thruster_2 = 1500 - pwm
+        self.pwm_actuator.thruster_3 = 1500 + pwm
+        self.pwm_actuator.thruster_4 = 1500 + pwm
+        self.publish()
+
+    def heave(self, pwm):
+        self.pwm_actuator.thruster_5 = 1500 + pwm
+        self.pwm_actuator.thruster_6 = 1500 + pwm
+        self.pwm_actuator.thruster_7 = 1500 + pwm
+        self.pwm_actuator.thruster_8 = 1500 + pwm
+        self.publish()
+
+    def roll(self, pwm):
+        self.pwm_actuator.thruster_5 = 1500 + pwm
+        self.pwm_actuator.thruster_6 = 1500 - pwm
+        self.pwm_actuator.thruster_7 = 1500 + pwm
+        self.pwm_actuator.thruster_8 = 1500 - pwm
+        self.publish()
+
+    def pitch(self, pwm):
+        self.pwm_actuator.thruster_5 = 1500 + pwm
+        self.pwm_actuator.thruster_6 = 1500 + pwm
+        self.pwm_actuator.thruster_7 = 1500 - pwm
+        self.pwm_actuator.thruster_8 = 1500 - pwm
+        self.publish()
+
+    def stop(self):
+        self.pwm_actuator.thruster_1 = 1500
+        self.pwm_actuator.thruster_2 = 1500
+        self.pwm_actuator.thruster_3 = 1500
+        self.pwm_actuator.thruster_4 = 1500
+        self.pwm_actuator.thruster_5 = 1500
+        self.pwm_actuator.thruster_6 = 1500
+        self.pwm_actuator.thruster_7 = 1500
+        self.pwm_actuator.thruster_8 = 1500
+        self.publish()
+
+    def publish(self):
+        self.pub_pwm_actuator.publish(self.pwm_actuator)
 
 class Subscriber():
     def __init__(self):
-        self.pwm_thr_1 = 1500
-        self.pwm_thr_2 = 1500
-        self.pwm_thr_3 = 1500
-        self.pwm_thr_4 = 1500
-        self.pwm_thr_5 = 1500
-        self.pwm_thr_6 = 1500
-        self.pwm_thr_7 = 1500
-        self.pwm_thr_8 = 1500
+        self.is_start = False
+        self.start_time = None
 
-        # Publisher
-        self.pub_pwm_thr_1 = rospy.Publisher('pwm_thr_1', Float32, queue_size=10)
-        self.pub_pwm_thr_2 = rospy.Publisher('pwm_thr_2', Float32, queue_size=10)
-        self.pub_pwm_thr_3 = rospy.Publisher('pwm_thr_3', Float32, queue_size=10)
-        self.pub_pwm_thr_4 = rospy.Publisher('pwm_thr_4', Float32, queue_size=10)
-        self.pub_pwm_thr_5 = rospy.Publisher('pwm_thr_5', Float32, queue_size=10)
-        self.pub_pwm_thr_6 = rospy.Publisher('pwm_thr_6', Float32, queue_size=10)
-        self.pub_pwm_thr_7 = rospy.Publisher('pwm_thr_7', Float32, queue_size=10)
-        self.pub_pwm_thr_8 = rospy.Publisher('pwm_thr_8', Float32, queue_size=10)
+        self.movement = Movement()
+        self.movement.stop()
+
+        self.pid_roll = PID(5, 0, 0)
+        self.pid_pitch = PID(5, 0, 0)
+        self.pid_yaw = PID(5, 0, 0)
+        self.pid_heave = PID(1, 0, 0)
+
+        self.pwm_roll = 0
+        self.pwm_pitch = 0
+        self.pwm_yaw = 0
+        self.pwm_heave = 0
 
         # Subscriber
-        rospy.Subscriber('error_roll', Int16, self.callback_error_roll)
-        rospy.Subscriber('error_pitch', Int16, self.callback_error_pitch)
-        rospy.Subscriber('error_yaw', Int16, self.callback_error_yaw)
-        rospy.Subscriber('error_depth', Float32, self.callback_error_depth)
+        rospy.Subscriber('error', Error, self.callback_error)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
+    
+    def stabilize_roll(self, error):
+        self.pwm_roll = self.pid_roll(error)
 
-    def callback_error_roll(self, data):
-        # Kalkulasi PID
-        print('Calculate PID Roll')
+        if self.pwm_roll >= 50:
+            self.pwm_roll = 50
+        elif self.pwm_roll <= -50:
+            self.pwm_roll = -50
 
-    def callback_error_pitch(self, data):
-        # Kalkulasi PID
-        print('Calculate PID Pitch')
+        rospy.loginfo('PWM Roll %s' % self.pwm_roll)
+        self.movement.roll(self.pwm_roll)
 
-    def callback_error_yaw(self, data):
-        # Kalkulasi PID
-        print('Calculate PID Yaw')
+    def stabilize_pitch(self, error):
+        self.pwm_pitch = self.pid_pitch(error)
 
-    def callback_error_depth(self, data):
-        # Kalkulasi PID
-        print('Calculate PID Depth')
+        if self.pwm_pitch >= 50:
+            self.pwm_pitch = 50
+        elif self.pwm_pitch <= -50:
+            self.pwm_pitch = -50
+
+        rospy.loginfo('PWM Pitch %s' % self.pwm_pitch)
+        self.movement.pitch(self.pwm_pitch)
+
+
+    def stabilize_yaw(self, error):
+        self.pwm_yaw = self.pid_yaw(error)
+
+        if self.pwm_yaw >= 50:
+            self.pwm_yaw = 50
+        elif self.pwm_yaw <= -50:
+            self.pwm_yaw = -50
+
+        rospy.loginfo('PWM Yaw %s' % self.pwm_yaw)
+        self.movement.yaw(self.pwm_yaw)
+
+    def stabilize_depth(self, error):
+        self.pwm_heave = self.pid_heave(error)
+        
+        if self.pwm_heave >= 50:
+            self.pwm_heave = 50
+        elif self.pwm_heave <= -50:
+            self.pwm_heave = -50
+
+        rospy.loginfo('PWM Heave %s' % self.pwm_heave)
+        self.movement.heave(self.pwm_heave)
+
+    def callback_error(self, data):
+        # self.stabilize_roll(data.roll)
+        # self.stabilize_pitch(data.pitch)
+        self.stabilize_yaw(data.yaw)
+        self.stabilize_depth(data.depth)
 
     def callback_is_start(self, data):
         if data.data:
-            self.pub_pwm_thr_1.publish(self.pwm_thr_1)
-            self.pub_pwm_thr_2.publish(self.pwm_thr_2)
-            self.pub_pwm_thr_3.publish(self.pwm_thr_3)
-            self.pub_pwm_thr_4.publish(self.pwm_thr_4)
-            self.pub_pwm_thr_5.publish(self.pwm_thr_5)
-            self.pub_pwm_thr_6.publish(self.pwm_thr_6)
-            self.pub_pwm_thr_7.publish(self.pwm_thr_7)
-            self.pub_pwm_thr_8.publish(self.pwm_thr_8)
+            if not self.is_start:
+                self.start_time = time.time()
+                self.is_start = True
+        else:
+            self.movement.stop()
 
     def spin(self):
         rospy.spin()

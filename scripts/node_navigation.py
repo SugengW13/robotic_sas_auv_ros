@@ -1,66 +1,81 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Bool, Int16, Float32
+from std_msgs.msg import Bool, String
+from robotic_sas_auv_ros.msg import Sensor, SetPoint, Error
 
 class Subscriber():
     def __init__(self):
-        self.roll = 0
-        self.pitch = 0
-        self.yaw = 0
-        self.depth = 0.0
-        self.error_roll = 0
-        self.error_pitch = 0
-        self.error_yaw = 0
-        self.error_depth = 0.0
+        self.error = Error()
+        self.set_point = SetPoint()
 
         # Publisher
-        self.pub_error_roll = rospy.Publisher('error_roll', Int16, queue_size=10)
-        self.pub_error_pitch = rospy.Publisher('error_pitch', Int16, queue_size=10)
-        self.pub_error_yaw = rospy.Publisher('error_yaw', Int16, queue_size=10)
-        self.pub_error_depth = rospy.Publisher('error_depth', Float32, queue_size=10)
+        self.pub_error = rospy.Publisher('error', Error, queue_size=10)
+        self.pub_movement = rospy.Publisher('movement', String, queue_size=10)
 
         # Subscriber
-        rospy.Subscriber('roll', Int16, self.callback_roll)
-        rospy.Subscriber('pitch', Int16, self.callback_pitch)
-        rospy.Subscriber('yaw', Int16, self.callback_yaw)
-        rospy.Subscriber('depth', Float32, self.callback_depth)
-        rospy.Subscriber('target_roll', Int16, self.callback_target_roll)
-        rospy.Subscriber('target_pitch', Int16, self.callback_target_pitch)
-        rospy.Subscriber('target_yaw', Int16, self.callback_target_yaw)
-        rospy.Subscriber('target_depth', Float32, self.callback_target_depth)
+        rospy.Subscriber('set_point', SetPoint, self.callback_set_point)
+        rospy.Subscriber('sensor', Sensor, self.callback_sensor)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
 
-    def callback_roll(self, data):
-        self.roll = data.data
+    def reset_error(self):
+        self.error.roll = 0
+        self.error.pitch = 0
+        self.error.yaw = 0
+        self.error.depth = 0
 
-    def callback_pitch(self, data):
-        self.pitch = data.data
+    def calculate_compass_error(self, current, target):
+        return (target - current + 180) % 360 - 180
 
-    def callback_yaw(self, data):
-        self.yaw = data.data
-    
-    def callback_depth(self, data):
-        self.depth = data.data
+    def callback_set_point(self, data):
+        self.set_point = data
 
-    def callback_target_roll(self, data):
-        self.error_roll = data.data - self.roll
+    def callback_sensor(self, data):
+        error_roll = self.calculate_compass_error(data.roll, self.set_point.roll)
+        error_pitch = self.calculate_compass_error(data.pitch, self.set_point.pitch)
+        error_yaw = self.calculate_compass_error(data.yaw, self.set_point.yaw)
+        error_depth = self.set_point.depth - data.depth
 
-    def callback_target_pitch(self, data):
-        self.error_pitch = data.data - self.pitch
+        is_stable_roll = -3 <= error_roll <= 3
+        is_stable_pitch = -3 <= error_pitch <= 3
+        is_stable_yaw = -3 <= error_yaw <= 3
+        is_stable_depth = -0.1 <= error_depth <= 0.1
 
-    def callback_target_yaw(self, data):
-        self.error_yaw = data.data - self.yaw
+        if not is_stable_roll:
+            rospy.loginfo('STABILIZE ROLL')
+            self.reset_error()
+            self.error.roll = error_roll
+            return
 
-    def callback_target_depth(self, data):
-        self.error_depth = data.data - self.depth
+        if not is_stable_pitch:
+            rospy.loginfo('STABILIZE PITCH')
+            self.reset_error()
+            self.error.pitch = error_pitch
+            return
+
+        if not is_stable_yaw:
+            rospy.loginfo('STABILIZE YAW')
+            self.reset_error()
+            self.error.yaw = error_yaw
+            return
+
+        if not is_stable_depth:
+            rospy.loginfo('STABILIZE DEPTH')
+            self.reset_error()
+            self.error.depth = error_depth
+            return
+
+        self.reset_error()
+
+        # Validate stabilize position
+        # self.error.roll = 0 if (-1 <= error_roll <= 1) else error_roll
+        # self.error.pitch = 0 if (-1 <= error_pitch <= 1) else error_pitch
+        # self.error.yaw = 0 if (-1 <= error_yaw <= 1) else error_yaw
+        # self.error.depth = 0 if (-0.05 <= error_depth <= 0.05) else error_depth
 
     def callback_is_start(self, data):
         if data.data:
-            self.pub_error_roll.publish(self.error_roll)
-            self.pub_error_pitch.publish(self.error_pitch)
-            self.pub_error_yaw.publish(self.error_yaw)
-            self.pub_error_depth.publish(self.error_depth)
+            self.pub_error.publish(self.error)
 
     def spin(self):
         rospy.spin()
