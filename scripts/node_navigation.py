@@ -31,33 +31,30 @@ class Subscriber():
         self.set_point = data
 
     def callback_sensor(self, data):
-        error_roll = self.calculate_compass_error(data.roll, self.set_point.roll)
-        error_pitch = self.calculate_compass_error(data.pitch, self.set_point.pitch)
-        error_yaw = self.calculate_compass_error(data.yaw, self.set_point.yaw)
         error_depth = self.set_point.depth - data.depth
 
-        is_stable_roll = -3 <= error_roll <= 3
-        is_stable_pitch = -3 <= error_pitch <= 3
-        is_stable_yaw = -3 <= error_yaw <= 3
+        # is_stable_roll = -3 <= error_roll <= 3
+        # is_stable_pitch = -3 <= error_pitch <= 3
+        # is_stable_yaw = -3 <= error_yaw <= 3
         is_stable_depth = -0.1 <= error_depth <= 0.1
 
-        if not is_stable_roll:
-            rospy.loginfo('STABILIZE ROLL')
-            self.reset_error()
-            self.error.roll = error_roll
-            return
+        # if not is_stable_roll:
+        #     rospy.loginfo('STABILIZE ROLL')
+        #     self.reset_error()
+        #     self.error.roll = error_roll
+        #     return
 
-        if not is_stable_pitch:
-            rospy.loginfo('STABILIZE PITCH')
-            self.reset_error()
-            self.error.pitch = error_pitch
-            return
+        # if not is_stable_pitch:
+        #     rospy.loginfo('STABILIZE PITCH')
+        #     self.reset_error()
+        #     self.error.pitch = error_pitch
+        #     return
 
-        if not is_stable_yaw:
-            rospy.loginfo('STABILIZE YAW')
-            self.reset_error()
-            self.error.yaw = error_yaw
-            return
+        # if not is_stable_yaw:
+        #     rospy.loginfo('STABILIZE YAW')
+        #     self.reset_error()
+        #     self.error.yaw = error_yaw
+        #     return
 
         if not is_stable_depth:
             rospy.loginfo('STABILIZE DEPTH')
