@@ -50,10 +50,12 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Sensor.msg
+  ArduinoSensor.msg
   Actuator.msg
   SetPoint.msg
   Error.msg
   IsStable.msg
+  Orientation.msg
 )
 
 ## Generate services in the 'srv' folder
