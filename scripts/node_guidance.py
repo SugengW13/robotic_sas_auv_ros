@@ -12,7 +12,7 @@ class Subscriber():
 
         self.set_point = SetPoint()
         self.set_point.roll = 0
-        self.set_point.pitch = 75
+        self.set_point.pitch = 0
         self.set_point.yaw = 0
         self.set_point.depth = -0.7
 
@@ -26,6 +26,14 @@ class Subscriber():
 
         rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
 
+    def start_auv(self):
+        self.pub_set_point.publish(self.set_point)
+        self.pub_is_start.publish(True)
+
+    def stop_auv(self):
+        rospy.loginfo('STOP')
+        self.pub_is_start.publish(False)
+
     def callback_is_start(self, data):
         if data.data:
             if not self.is_start:
@@ -33,12 +41,12 @@ class Subscriber():
                 self.is_start = True
             
             if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
-                self.pub_set_point.publish(self.set_point)
-                self.pub_is_start.publish(True)
-                return
+                self.start_auv()
         
-        rospy.loginfo('STOP')
-        self.pub_is_start.publish(False)
+            else:
+                self.stop_auv()
+
+        self.rate.sleep()
             
     def spin(self):
         rospy.spin()
