@@ -20,11 +20,8 @@ class Subscriber():
         rospy.Subscriber('sensor', Sensor, self.callback_sensor)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
 
-    def reset_error(self):
-        self.error.roll = 0
-        self.error.pitch = 0
-        self.error.yaw = 0
-        self.error.depth = 0
+    def generate_is_stable(self, thresh, error):
+        return -(thresh) <= error < thresh
 
     def calculate_orientation_error(self, current, target):
         error = (target - current) % 2
@@ -39,33 +36,23 @@ class Subscriber():
         self.set_point = data
 
     def callback_sensor(self, data):
+        # Calculate Error Value
         error_roll = self.calculate_orientation_error(data.x, self.set_point.roll)
         error_pitch = self.calculate_orientation_error(data.y, self.set_point.pitch)
         error_yaw = self.calculate_orientation_error(data.z, self.set_point.yaw)
         error_depth = self.set_point.depth - data.depth
 
-        is_stable_roll = -0.1 <= error_roll <= 0.1
-        is_stable_pitch = -0.1 <= error_pitch <= 0.1
-        is_stable_yaw = -0.1 <= error_yaw <= 0.1
-        is_stable_depth = -0.05 <= error_depth <= 0.05
+        # Determine Stable Position
+        is_stable_roll = self.generate_is_stable(0.1, error_roll)
+        is_stable_pitch = self.generate_is_stable(0.1, error_pitch)
+        is_stable_yaw = self.generate_is_stable(0.1, error_yaw)
+        is_stable_depth = self.generate_is_stable(0.05, error_depth)
 
-        if not is_stable_roll:
-            self.error.roll = error_roll
-
-        if not is_stable_pitch:
-            self.error.pitch = error_pitch
-
-        if not is_stable_yaw:
-            self.error.yaw = error_yaw
-
-        if not is_stable_depth:
-            self.error.depth = error_depth
-
-        # Validate stabilize position
-        self.error.roll = 0 if (-0.1 <= error_roll <= 0.1) else error_roll
-        self.error.pitch = 0 if (-0.1 <= error_pitch <= 0.1) else error_pitch
-        self.error.yaw = 0 if (-0.1 <= error_yaw <= 0.1) else error_yaw
-        self.error.depth = 0 if (-0.05 <= error_depth <= 0.05) else error_depth
+        # Validate Error Value
+        self.error.roll = 0 if is_stable_roll else error_roll
+        self.error.pitch = 0 if is_stable_pitch else error_pitch
+        self.error.yaw = 0 if is_stable_yaw else error_yaw
+        self.error.depth = 0 if is_stable_depth else error_depth
 
     def callback_is_start(self, data):
         if data.data:
