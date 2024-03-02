@@ -53,7 +53,6 @@ class Subscriber():
             
             if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
                 self.start_auv()
-        
             else:
                 self.stop_auv()
 

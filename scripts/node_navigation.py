@@ -22,11 +22,8 @@ class Subscriber():
         rospy.Subscriber('set_point', SetPoint, self.callback_set_point)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
 
-    def reset_error(self):
-        self.error.roll = 0
-        self.error.pitch = 0
-        self.error.yaw = 0
-        self.error.depth = 0
+    def generate_is_stable(self, thresh, error):
+        return -(thresh) <= error < thresh
 
     def calculate_orientation_error(self, current, target):
         error = (target - current) % 2
