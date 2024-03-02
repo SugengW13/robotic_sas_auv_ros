@@ -150,10 +150,10 @@ class Subscriber():
     def callback_is_start(self, data):
         if data.data:
             self.heaveRollPitch()
-
-            self.movement.publish()
         else:
             self.movement.stop()
+
+        self.movement.publish()
 
         self.rate.sleep()
 
