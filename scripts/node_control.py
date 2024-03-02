@@ -101,8 +101,8 @@ class Subscriber():
         self.movement.stop()
 
         self.pid_heave = PID(1000, 50, 200)
-        self.pid_roll = PID(200, 2, 3)
-        self.pid_pitch = PID(200, 0, 1)
+        self.pid_roll = PID(200, 0, 0)
+        self.pid_pitch = PID(200, 0, 0)
         self.pid_yaw = PID(200, 0, 0)
 
         self.pwm_roll = 0
@@ -149,15 +149,17 @@ class Subscriber():
     def stabilize_depth(self, error):
         self.pwm_heave = self.pid_heave(error)
 
-    def callback_movement(self, data):
-        if data.data == 'SURGE':
-            self.pwm_surge = 200
-
-    def callback_error(self, data):
+    # Collect Error Data
+    def callback_error(self, data: Error):
         self.stabilize_roll(data.roll)
         self.stabilize_pitch(data.pitch)
         self.stabilize_depth(data.depth)
         self.stabilize_yaw(data.yaw)
+
+    # Collect Movement Data
+    def callback_movement(self, data: String):
+        if data.data == 'SURGE':
+            self.pwm_surge = 200
 
     def callback_is_start(self, data):
         if data.data:
