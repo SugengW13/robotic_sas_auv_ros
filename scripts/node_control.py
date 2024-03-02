@@ -26,56 +26,48 @@ class Movement():
         self.pwm_actuator.thruster_2 = pwm_thruster_2
         self.pwm_actuator.thruster_3 = pwm_thruster_3
         self.pwm_actuator.thruster_4 = pwm_thruster_4
-        self.publish()
 
     def heaveRollPitch(self, pwm_thruster_5, pwm_thruster_6, pwm_thruster_7, pwm_thruster_8):
         self.pwm_actuator.thruster_5 = pwm_thruster_5
         self.pwm_actuator.thruster_6 = pwm_thruster_6
         self.pwm_actuator.thruster_7 = pwm_thruster_7
         self.pwm_actuator.thruster_8 = pwm_thruster_8
-        self.publish()
 
     def surge(self, pwm):
         self.pwm_actuator.thruster_1 = 1500 + pwm
         self.pwm_actuator.thruster_2 = 1500 + pwm
         self.pwm_actuator.thruster_3 = 1500 + pwm
         self.pwm_actuator.thruster_4 = 1500 + pwm
-        self.publish()
 
     def sway(self, pwm):
         self.pwm_actuator.thruster_1 = 1500 - pwm
         self.pwm_actuator.thruster_2 = 1500 + pwm
         self.pwm_actuator.thruster_3 = 1500 + pwm
         self.pwm_actuator.thruster_4 = 1500 - pwm
-        self.publish()
 
     def yaw(self, pwm):
         self.pwm_actuator.thruster_1 = 1500 - pwm
         self.pwm_actuator.thruster_2 = 1500 + pwm
         self.pwm_actuator.thruster_3 = 1500 - pwm
         self.pwm_actuator.thruster_4 = 1500 + pwm
-        self.publish()
 
     def heave(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 + pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 - pwm
         self.pwm_actuator.thruster_8 = 1500 - pwm
-        self.publish()
 
     def roll(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 - pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 + pwm
         self.pwm_actuator.thruster_8 = 1500 - pwm
-        self.publish()
 
     def pitch(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 + pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 + pwm
         self.pwm_actuator.thruster_8 = 1500 + pwm
-        self.publish()
 
     def stop(self):
         self.pwm_actuator.thruster_1 = 1500
@@ -86,7 +78,6 @@ class Movement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
-        self.publish()
 
     def publish(self):
         print('Publish PWM', self.pwm_actuator)
@@ -94,9 +85,6 @@ class Movement():
 
 class Subscriber():
     def __init__(self):
-        self.is_start = False
-        self.start_time = None
-
         self.movement = Movement()
         self.movement.stop()
 
@@ -161,12 +149,9 @@ class Subscriber():
 
     def callback_is_start(self, data):
         if data.data:
-            if not self.is_start:
-                self.start_time = time.time()
-                self.is_start = True
-
             self.heaveRollPitch()
-            # self.surgeSwayYaw()
+
+            self.movement.publish()
         else:
             self.movement.stop()
 
