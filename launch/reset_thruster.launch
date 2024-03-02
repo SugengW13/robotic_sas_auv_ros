@@ -1,0 +1,13 @@
+<launch>
+    <arg name='pwm' default='0' />
+    <arg name='duration' default='-1' />
+    <arg name='movement' default='stop' />
+
+    <group ns='nuc'>
+        <param name='pwm' value='$(arg pwm)'/>
+        <param name='duration' value='$(arg duration)'/>
+        <param name='movement' value='$(arg movement)'/>
+
+        <node pkg='robotic_sas_auv_ros' type='node_test_thruster.py' name='node_test_thruster' output='screen'/>
+    </group>
+</launch>
