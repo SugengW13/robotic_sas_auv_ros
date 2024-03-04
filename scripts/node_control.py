@@ -91,7 +91,7 @@ class Subscriber():
         self.pid_heave = PID(1000, 50, 200)
         self.pid_roll = PID(200, 0, 0)
         self.pid_pitch = PID(200, 0, 0)
-        self.pid_yaw = PID(1000, 0, 350)
+        self.pid_yaw = PID(1500, 0, 300)
 
         self.pwm_roll = 0
         self.pwm_pitch = 0
@@ -107,7 +107,7 @@ class Subscriber():
         rospy.Subscriber('error', Error, self.callback_error)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
         rospy.Subscriber('movement', String, self.callback_movement)
-    
+
     def constrain(self, value):
         return min(max(value, 1200), 1800)
 
@@ -132,7 +132,7 @@ class Subscriber():
         self.pwm_pitch = self.pid_pitch(error)
 
     def stabilize_yaw(self, error):
-        self.pwm_yaw = self.pid_yaw(error)
+        self.pwm_yaw = self.constrain_pwm(self.pid_yaw(error))
 
     def stabilize_depth(self, error):
         self.pwm_heave = self.pid_heave(error)

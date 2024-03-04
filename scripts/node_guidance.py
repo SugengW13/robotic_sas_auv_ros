@@ -14,8 +14,8 @@ class Subscriber():
         self.set_point = SetPoint()
         self.set_point.roll = 0
         self.set_point.pitch = 0
-        self.set_point.yaw = -0.5
-        self.set_point.depth = -0.7
+        self.set_point.yaw = -0.78
+        self.set_point.depth = -0.4
 
         self.rate = rospy.Rate(10)
 
@@ -49,14 +49,14 @@ class Subscriber():
             if not self.is_start:
                 self.start_time = time.time()
                 self.is_start = True
-            
+
             if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
                 self.start_auv()
             else:
                 self.stop_auv()
 
         self.rate.sleep()
-            
+
     def spin(self):
         rospy.spin()
 
