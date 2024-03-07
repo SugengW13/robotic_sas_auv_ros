@@ -132,7 +132,7 @@ class Subscriber():
         self.pwm_pitch = self.pid_pitch(error)
 
     def stabilize_yaw(self, error):
-        self.pwm_yaw = self.constrain_pwm(self.pid_yaw(error))
+        self.pwm_yaw = self.pid_yaw(error)
 
     def stabilize_depth(self, error):
         self.pwm_heave = self.pid_heave(error)
