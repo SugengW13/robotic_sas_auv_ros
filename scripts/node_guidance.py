@@ -14,7 +14,7 @@ class Subscriber():
         self.set_point = SetPoint()
         self.set_point.roll = 0
         self.set_point.pitch = 0
-        self.set_point.yaw = 0
+        self.set_point.yaw = -0.5
         self.set_point.depth = -0.7
 
         self.rate = rospy.Rate(10)
@@ -34,8 +34,7 @@ class Subscriber():
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
 
-        if self.is_stable.depth:
-            self.pub_movement.publish('SURGE')
+        self.pub_movement.publish('SURGE')
 
     def stop_auv(self):
         rospy.loginfo('STOP')
