@@ -50,6 +50,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Sensor.msg
+  Movement.msg
   ArduinoSensor.msg
   Actuator.msg
   SetPoint.msg

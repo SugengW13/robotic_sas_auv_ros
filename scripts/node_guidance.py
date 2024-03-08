@@ -2,8 +2,8 @@
 
 import rospy
 import time
-from std_msgs.msg import Bool, String
-from robotic_sas_auv_ros.msg import SetPoint, IsStable
+from std_msgs.msg import Bool
+from robotic_sas_auv_ros.msg import SetPoint, IsStable, Movement
 
 class Subscriber():
     def __init__ (self):
@@ -12,9 +12,11 @@ class Subscriber():
 
         self.is_stable = IsStable()
         self.set_point = SetPoint()
+        self.movement = Movement()
+
         self.set_point.roll = 0
         self.set_point.pitch = 0
-        self.set_point.yaw = -0.78
+        self.set_point.yaw = -0.81
         self.set_point.depth = -0.4
 
         self.rate = rospy.Rate(10)
@@ -24,17 +26,22 @@ class Subscriber():
         # Publisher
         self.pub_is_start = rospy.Publisher('is_start', Bool, queue_size=10)
         self.pub_set_point = rospy.Publisher('set_point', SetPoint, queue_size=10)
-        self.pub_movement = rospy.Publisher('movement', String, queue_size=10)
+        self.pub_movement = rospy.Publisher('movement', Movement, queue_size=10)
 
         # Subscriber
         rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
         rospy.Subscriber('is_stable', IsStable, self.callback_is_stable)
 
-    def start_auv(self):
+    def publish_movement(self, type, pwm):
+        self.movement.type = type
+        self.movement.pwm = pwm
+        self.pub_movement.publish(self.movement)
+
+    def start_auv(self, boot_time):
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
 
-        self.pub_movement.publish('SURGE')
+        self.publish_movement('SURGE', 400)
 
     def stop_auv(self):
         rospy.loginfo('STOP')
@@ -51,7 +58,7 @@ class Subscriber():
                 self.is_start = True
 
             if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
-                self.start_auv()
+                self.start_auv(time.time() - self.start_time)
             else:
                 self.stop_auv()
 
