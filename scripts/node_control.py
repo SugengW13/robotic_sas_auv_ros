@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
 import rospy
-import time
 from simple_pid import PID
-from std_msgs.msg import Bool, String
-from robotic_sas_auv_ros.msg import Error
-from robotic_sas_auv_ros.msg import Actuator
+from std_msgs.msg import Bool
+from robotic_sas_auv_ros.msg import Error, Actuator, Movement
 
-class Movement():
+class ThrusterMovement():
     def __init__(self):
         self.pwm_actuator = Actuator()
         self.pwm_actuator.thruster_1 = 1500
@@ -85,13 +83,14 @@ class Movement():
 
 class Subscriber():
     def __init__(self):
-        self.movement = Movement()
+        self.error = Error()
+        self.movement = ThrusterMovement()
         self.movement.stop()
 
-        self.pid_heave = PID(1000, 50, 200)
+        self.pid_heave = PID(1000, 50, 300)
         self.pid_roll = PID(200, 0, 0)
         self.pid_pitch = PID(200, 0, 0)
-        self.pid_yaw = PID(1500, 0, 300)
+        self.pid_yaw = PID(1700, 0, 200)
 
         self.pwm_roll = 0
         self.pwm_pitch = 0
@@ -106,23 +105,26 @@ class Subscriber():
         # Subscriber
         rospy.Subscriber('error', Error, self.callback_error)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
-        rospy.Subscriber('movement', String, self.callback_movement)
+        rospy.Subscriber('movement', Movement, self.callback_movement)
 
-    def constrain(self, value):
-        return min(max(value, 1200), 1800)
+    def constrain(self, value, _min, _max):
+        return min(max(value, _min), _max)
 
     def surge_sway_yaw(self):
-        pwm_thruster_1 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw)
-        pwm_thruster_2 = self.constrain(1500 + self.pwm_surge - self.pwm_sway + self.pwm_yaw)
-        pwm_thruster_3 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw)
-        pwm_thruster_4 = self.constrain(1500 + self.pwm_surge + self.pwm_sway + self.pwm_yaw)
+        pwm_thruster_1 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, 1200, 1800)
+        pwm_thruster_2 = self.constrain(1500 + self.pwm_surge - self.pwm_sway + self.pwm_yaw, 1200, 1800)
+        pwm_thruster_3 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw, 1200, 1800)
+        pwm_thruster_4 = self.constrain(1500 + self.pwm_surge + self.pwm_sway + self.pwm_yaw, 1200, 1800)
         self.movement.surge_sway_yaw(pwm_thruster_1, pwm_thruster_2, pwm_thruster_3, pwm_thruster_4)
 
     def heave_roll_pitch(self):
-        pwm_thruster_5 = self.constrain(1500 + self.pwm_heave + self.pwm_roll - self.pwm_pitch)
-        pwm_thruster_6 = self.constrain(1500 + self.pwm_heave - self.pwm_roll - self.pwm_pitch)
-        pwm_thruster_7 = self.constrain(1500 - self.pwm_heave - self.pwm_roll - self.pwm_pitch)
-        pwm_thruster_8 = self.constrain(1500 - self.pwm_heave + self.pwm_roll - self.pwm_pitch)
+        min_pwm = 1200 if self.error.depth > 0 else 1300
+        max_pwm = 1800 if self.error.depth > 0 else 1700
+
+        pwm_thruster_5 = self.constrain(1500 + self.pwm_heave + self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_6 = self.constrain(1500 + self.pwm_heave - self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_7 = self.constrain(1500 - self.pwm_heave - self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_8 = self.constrain(1500 - self.pwm_heave + self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
         self.movement.heave_roll_pitch(pwm_thruster_5, pwm_thruster_6, pwm_thruster_7, pwm_thruster_8)
 
     def stabilize_roll(self, error):
@@ -139,17 +141,18 @@ class Subscriber():
 
     # Collect Error Data
     def callback_error(self, data: Error):
+        self.error = data
         self.stabilize_roll(data.roll)
         self.stabilize_pitch(data.pitch)
         self.stabilize_depth(data.depth)
         self.stabilize_yaw(data.yaw)
 
     # Collect Movement Data
-    def callback_movement(self, data: String):
-        if data.data == 'SURGE':
-            self.pwm_surge = 200
-        if data.data == 'SWAY':
-            self.pwm_sway = 200
+    def callback_movement(self, data: Movement):
+        if data.type == 'SURGE':
+            self.pwm_surge = data.pwm
+        if data.type == 'SWAY':
+            self.pwm_sway = data.pwm
 
     def callback_is_start(self, data):
         if data.data:
