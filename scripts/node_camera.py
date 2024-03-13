@@ -5,12 +5,12 @@ import rospy
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
-def main():
-    cap = cv2.VideoCapture(0)
+def main(cam_index):
+    cap = cv2.VideoCapture(cam_index)
 
     rospy.init_node('node_camera', anonymous=True)
 
-    pub_camera = rospy.Publisher('camera', Image, queue_size=10)
+    pub_camera = rospy.Publisher('/camera', Image, queue_size=10)
 
     rate = rospy.Rate(10)
 
@@ -29,4 +29,5 @@ def main():
         rate.sleep()
 
 if __name__ == '__main__':
-    main()
+    param_cam_index = rospy.get_param('/nuc/cam_index')
+    main(param_cam_index)
