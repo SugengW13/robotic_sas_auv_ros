@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Bool, String
-from robotic_sas_auv_ros.msg import Sensor, SetPoint, IsStable, Error
+from std_msgs.msg import Bool
+from robotic_sas_auv_ros.msg import Sensor, SetPoint, IsStable, Error, Movement
 
 class Subscriber():
     def __init__(self):
@@ -16,7 +16,6 @@ class Subscriber():
         # Publisher
         self.pub_error = rospy.Publisher('error', Error, queue_size=10)
         self.pub_is_stable = rospy.Publisher('is_stable', IsStable, queue_size=10)
-        self.pub_movement = rospy.Publisher('movement', String, queue_size=10)
 
         # Subscriber
         rospy.Subscriber('sensor', Sensor, self.callback_sensor)
