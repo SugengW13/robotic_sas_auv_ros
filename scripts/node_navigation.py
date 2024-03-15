@@ -10,7 +10,8 @@ class Subscriber():
         self.set_point = SetPoint()
         self.is_stable = IsStable()
 
-        self.rate = rospy.Rate(10)
+        param_rate = rospy.get_param('/nuc/rate')
+        self.rate = rospy.Rate(param_rate)
 
         # Publisher
         self.pub_error = rospy.Publisher('error', Error, queue_size=10)

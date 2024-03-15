@@ -10,7 +10,9 @@ from nav_msgs.msg import Odometry
 class Subscriber():
     def __init__(self):
         self.sensor = Sensor()
-        self.rate = rospy.Rate(10)
+
+        param_rate = rospy.get_param('/nuc/rate')
+        self.rate = rospy.Rate(param_rate)
 
         # Publisher
         self.pub_sensor = rospy.Publisher('sensor', Sensor, queue_size=10)
