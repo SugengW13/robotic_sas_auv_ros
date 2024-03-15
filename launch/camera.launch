@@ -1,7 +1,9 @@
 <launch>
+    <arg name='rate' default='10' />
     <arg name='cam_index' default='0' />
 
     <group ns='nuc'>
+        <param name='rate' value='$(arg rate)'/>
         <param name='cam_index' value='$(arg cam_index)'/>
 
         <node pkg='robotic_sas_auv_ros' type='node_camera.py' name='node_camera' output='screen'/>

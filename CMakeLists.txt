@@ -57,6 +57,8 @@ add_message_files(
   Error.msg
   IsStable.msg
   Orientation.msg
+  BoundingBox.msg
+  ObjectDetection.msg
 )
 
 ## Generate services in the 'srv' folder

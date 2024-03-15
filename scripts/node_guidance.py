@@ -19,9 +19,10 @@ class Subscriber():
         self.set_point.yaw = -0.81
         self.set_point.depth = -0.4
 
-        self.rate = rospy.Rate(10)
-
         self.param_duration = rospy.get_param('/nuc/duration')
+
+        param_rate = rospy.get_param('/nuc/rate')
+        self.rate = rospy.Rate(param_rate)
 
         # Publisher
         self.pub_is_start = rospy.Publisher('is_start', Bool, queue_size=10)

@@ -100,7 +100,8 @@ class Subscriber():
         self.pwm_sway = 0
         self.pwm_heave = 0
 
-        self.rate = rospy.Rate(10)
+        param_rate = rospy.get_param('/nuc/rate')
+        self.rate = rospy.Rate(param_rate)
 
         # Subscriber
         rospy.Subscriber('error', Error, self.callback_error)
