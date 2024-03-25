@@ -1,9 +1,38 @@
 #!/usr/bin/env python3
 
+import time
 import rospy
-from simple_pid import PID
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Error, Actuator, Movement
+
+class PID():
+    def __init__(self, kp, ki, kd):
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+
+        self.proportional = 0
+        self.integral = 0
+        self.derivative = 0
+
+        self.start_time = time.time()
+        self.last_time = None
+
+        self.last_error = 0
+
+    def __call__(self, error):
+        dt = time.time() - (self.last_time if self.last_time is not None else self.start_time)
+
+        d_error = error - self.last_error
+
+        self.proportional = self.kp * error
+        self.integral += self.ki * error * dt
+        self.derivative = self.kd * d_error / dt
+
+        self.last_error = error
+        self.last_time = time.time()
+
+        return self.proportional + self.integral + self.derivative
 
 class ThrusterMovement():
     def __init__(self):
@@ -78,19 +107,19 @@ class ThrusterMovement():
         self.pwm_actuator.thruster_8 = 1500
 
     def publish(self):
-        print('Publish PWM', self.pwm_actuator)
         self.pub_pwm_actuator.publish(self.pwm_actuator)
 
 class Subscriber():
     def __init__(self):
         self.error = Error()
+
         self.movement = ThrusterMovement()
         self.movement.stop()
 
-        self.pid_heave = PID(1000, 50, 300)
-        self.pid_roll = PID(200, 0, 0)
-        self.pid_pitch = PID(200, 0, 0)
-        self.pid_yaw = PID(1700, 0, 200)
+        self.pid_heave = PID(500, 20, 50)
+        self.pid_roll = PID(500, 20, 50)
+        self.pid_pitch = PID(500, 20, 50)
+        self.pid_yaw = PID(500, 20, 50)
 
         self.pwm_roll = 0
         self.pwm_pitch = 0
@@ -154,6 +183,8 @@ class Subscriber():
             self.pwm_surge = data.pwm
         if data.type == 'SWAY':
             self.pwm_sway = data.pwm
+        if data.type == 'STOP':
+            self.movement.stop()
 
     def callback_is_start(self, data):
         if data.data:
