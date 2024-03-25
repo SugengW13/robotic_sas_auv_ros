@@ -1,9 +1,11 @@
 <launch>
     <arg name='rate' default='10' />
-    <arg name='duration' default='5' />
+    <arg name='delay' default='3' />
+    <arg name='duration' default='-1' />
 
     <group ns='nuc'>
         <param name='rate' value='$(arg rate)'/>
+        <param name='delay' value='$(arg delay)'/>
         <param name='duration' value='$(arg duration)'/>
 
         <node pkg='robotic_sas_auv_ros' type='node_guidance.py' name='node_guidance' output='screen'/>
