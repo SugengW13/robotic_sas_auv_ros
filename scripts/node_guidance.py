@@ -8,6 +8,7 @@ from robotic_sas_auv_ros.msg import SetPoint, IsStable, Movement
 class Subscriber():
     def __init__ (self):
         self.is_start = False
+        self.boot_time = None
         self.start_time = None
 
         self.is_stable = IsStable()
@@ -16,9 +17,10 @@ class Subscriber():
 
         self.set_point.roll = 0
         self.set_point.pitch = 0
-        self.set_point.yaw = -0.81
-        self.set_point.depth = -0.4
+        self.set_point.yaw = 0.9
+        self.set_point.depth = 0
 
+        self.param_delay = rospy.get_param('/nuc/delay')
         self.param_duration = rospy.get_param('/nuc/duration')
 
         param_rate = rospy.get_param('/nuc/rate')
@@ -38,7 +40,14 @@ class Subscriber():
         self.movement.pwm = pwm
         self.pub_movement.publish(self.movement)
 
+    def start_movement(self, start_time, end_time):
+        rospy.loginfo('MOVE')
+
     def start_auv(self, boot_time):
+        if boot_time <= self.param_delay:
+            rospy.loginfo('STARTING...')
+            return
+
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
 
