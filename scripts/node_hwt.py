@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+
 import serial
 import time
 import rospy
 from std_msgs.msg import Float32
-
 
 param_port = rospy.get_param('/witmotion/port_hwt')
 param_baud = rospy.get_param('/witmotion/baud_hwt')
@@ -21,7 +22,6 @@ pub = rospy.Publisher('/hwt/heading', Float32, queue_size=10)
 
 try:
     while not rospy.is_shutdown():
-        print("true")
         # Request data from the sensor
         ser.write(bytes([0x33]))  # Command to request data
 
@@ -34,12 +34,17 @@ try:
 
         # Read data from the sensor
         data = ser.readline()  # Read a line of data
-        print(f"Received data: {data}")  # Print the raw data
-        print(f"Received data length: {len(data)}")  # Print the length of the received data
-        if len(data) >= 8:  # Changed from 9 to 8
-            # Extract Euler angles from the received data
-            yaw = (data[1] << 8) | data[0]
-            pub.publish(yaw)
+        # print(f"Received data: {data}")  # Print the raw data
+
+        # Extract yaw value from the data
+        data_str = data.decode('utf-8')  # Convert bytes to string
+        for item in data_str.split(','):
+            if 'Yaw' in item:
+                yaw_str = item.split(':')[1]  # Get the value after 'Yaw:'
+                yaw = float(yaw_str)  # Convert the yaw value to float
+                converted_yaw = yaw / 32768.0 * 180.0
+                print(converted_yaw)
+                pub.publish(converted_yaw)  # Publish the yaw value
 
 except rospy.ROSInterruptException:
     pass
