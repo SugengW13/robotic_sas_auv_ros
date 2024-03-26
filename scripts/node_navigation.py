@@ -12,9 +12,6 @@ class Subscriber():
         self.set_point = SetPoint()
         self.is_stable = IsStable()
 
-        param_rate = rospy.get_param('/nuc/rate')
-        self.rate = rospy.Rate(param_rate)
-
         # Publisher
         self.pub_error = rospy.Publisher('error', Error, queue_size=10)
         self.pub_is_stable = rospy.Publisher('is_stable', IsStable, queue_size=10)
@@ -68,8 +65,6 @@ class Subscriber():
         if data.data:
             self.pub_is_stable.publish(self.is_stable)
             self.pub_error.publish(self.error)
-
-        self.rate.sleep()
 
     def spin(self):
         rospy.spin()

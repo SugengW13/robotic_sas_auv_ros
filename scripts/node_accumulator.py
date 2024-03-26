@@ -12,9 +12,6 @@ class Subscriber():
         self.sensor = Sensor()
         self.object_detection = ObjectDetection()
 
-        param_rate = rospy.get_param('/nuc/rate')
-        self.rate = rospy.Rate(param_rate)
-
         # Publisher
         self.pub_sensor = rospy.Publisher('sensor', Sensor, queue_size=10)
         self.pub_object_detection = rospy.Publisher('object_detection', ObjectDetection, queue_size=10)
@@ -62,8 +59,6 @@ class Subscriber():
         if data.data:   
             self.pub_sensor.publish(self.sensor)
             self.pub_object_detection.publish(self.object_detection)
-
-        self.rate.sleep()
 
     def spin(self):
         rospy.spin()
