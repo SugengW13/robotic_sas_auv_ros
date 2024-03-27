@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float32
 from sensor_msgs.msg import Imu
 from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, BoundingBox, ObjectDetection
 from nav_msgs.msg import Odometry
@@ -21,6 +21,7 @@ class Subscriber():
         rospy.Subscriber('/arduino/sensor', ArduinoSensor, self.callback_arduino_sensor)
         rospy.Subscriber('/camera/odom/sample', Odometry, self.callback_odometry)
         rospy.Subscriber('/imu', Imu, self.callback_imu)
+        rospy.Subscriber('/heading', Float32, self.callback_heading)
         rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.callback_bounding_boxes)
 
     # Collect Arduino Sensor Data
@@ -37,8 +38,11 @@ class Subscriber():
     def callback_imu(self, data: Imu):
         self.sensor.roll = round(data.orientation.x, 3)
         self.sensor.pitch = round(data.orientation.y, 3)
-        self.sensor.yaw = round(data.orientation.z, 3)
+        # self.sensor.yaw = round(data.orientation.z, 3)
     
+    def callback_heading(self, data):
+        self.sensor.yaw = round(data.data)
+
     # Collect BoundingBoxes Data
     def callback_bounding_boxes(self, data: BoundingBoxes):
         self.object_detection.bounding_boxes = [
