@@ -17,7 +17,7 @@ class Subscriber():
 
         self.set_point.roll = 0
         self.set_point.pitch = 0
-        self.set_point.yaw = 0
+        self.set_point.yaw = 0.9
         self.set_point.depth = 0
 
         self.param_delay = rospy.get_param('/nuc/delay')
