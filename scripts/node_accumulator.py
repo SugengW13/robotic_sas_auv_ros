@@ -12,9 +12,6 @@ class Subscriber():
         self.sensor = Sensor()
         self.object_detection = ObjectDetection()
 
-        param_rate = rospy.get_param('/nuc/rate')
-        self.rate = rospy.Rate(param_rate)
-
         # Publisher
         self.pub_sensor = rospy.Publisher('sensor', Sensor, queue_size=10)
         self.pub_object_detection = rospy.Publisher('object_detection', ObjectDetection, queue_size=10)
@@ -44,23 +41,24 @@ class Subscriber():
     
     # Collect BoundingBoxes Data
     def callback_bounding_boxes(self, data: BoundingBoxes):
-        for b_box in data.bounding_boxes:
-            bounding_box = BoundingBox()
-            bounding_box.class_name = b_box.Class
-            bounding_box.probability = b_box.probability
-            bounding_box.x_min = b_box.xmin
-            bounding_box.y_min = b_box.ymin
-            bounding_box.x_max = b_box.xmax
-            bounding_box.y_max = b_box.ymax
+        self.object_detection.bounding_boxes = [
+            BoundingBox(
+                class_name=b_box.Class,
+                probability=b_box.probability,
+                x_min=b_box.xmin,
+                y_min=b_box.ymin,
+                x_max=b_box.xmax,
+                y_max=b_box.ymax
+            ) for b_box in data.bounding_boxes
+        ]
 
-            self.object_detection.bounding_boxes.append(bounding_box)
+        rospy.loginfo(self.object_detection.bounding_boxes)
+
 
     def callback_is_start(self, data: Bool):
-        if data.data:
+        if data.data:   
             self.pub_sensor.publish(self.sensor)
             self.pub_object_detection.publish(self.object_detection)
-
-        self.rate.sleep()
 
     def spin(self):
         rospy.spin()

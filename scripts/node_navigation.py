@@ -2,16 +2,15 @@
 
 import rospy
 from std_msgs.msg import Bool
-from robotic_sas_auv_ros.msg import Sensor, SetPoint, IsStable, Error, Movement
+from robotic_sas_auv_ros.msg import Sensor, SetPoint, IsStable, Error, ObjectDetection
 
 class Subscriber():
     def __init__(self):
+        self.is_object_detected = False
+
         self.error = Error()
         self.set_point = SetPoint()
         self.is_stable = IsStable()
-
-        param_rate = rospy.get_param('/nuc/rate')
-        self.rate = rospy.Rate(param_rate)
 
         # Publisher
         self.pub_error = rospy.Publisher('error', Error, queue_size=10)
@@ -19,11 +18,12 @@ class Subscriber():
 
         # Subscriber
         rospy.Subscriber('sensor', Sensor, self.callback_sensor)
+        rospy.Subscriber('object_detection', ObjectDetection, self.callback_object_detection)
         rospy.Subscriber('set_point', SetPoint, self.callback_set_point)
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
 
     def generate_is_stable(self, thresh, error):
-        return -(thresh) <= error < thresh
+        return -(thresh) <= error <= thresh
 
     def calculate_orientation_error(self, current, target):
         error = (target - current) % 2
@@ -58,12 +58,13 @@ class Subscriber():
         self.error.yaw = 0 if self.is_stable.yaw else error_yaw
         self.error.depth = 0 if self.is_stable.depth else error_depth
 
+    def callback_object_detection(self, data: ObjectDetection):
+        self.is_object_detected = len(data.bounding_boxes) > 0
+
     def callback_is_start(self, data: Bool):
         if data.data:
             self.pub_is_stable.publish(self.is_stable)
             self.pub_error.publish(self.error)
-
-        self.rate.sleep()
 
     def spin(self):
         rospy.spin()

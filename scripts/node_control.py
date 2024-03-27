@@ -4,7 +4,7 @@ import time
 import rospy
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Error, Actuator, Movement
-
+https://github.com/SugengW13/robotic_sas_auv_ros/pull/73/conflict?name=scripts%252Fnode_control.py&ancestor_oid=e3f967d936b4855db9daeab8ceda1f7d534b9c93&base_oid=b1ccc8ca23c7ce6daff2aa41b5eb1615759f64c5&head_oid=493dd8b8251059ab957cfc37f36df7560e6259fb
 class PID():
     def __init__(self, kp, ki, kd):
         self.kp = kp
@@ -116,13 +116,10 @@ class Subscriber():
         self.movement = ThrusterMovement()
         self.movement.stop()
 
-        # self.pid_heave = PID(500, 20, 50)
-        self.pid_heave = PID(1000, 00, 00)
+        self.pid_heave = PID(1000, 0, 0)
         self.pid_roll = PID(500, 20, 50)
         self.pid_pitch = PID(500, 20, 50)
-        # self.pid_yaw = PID(500, 20, 50)
         self.pid_yaw = PID(1200, 20, 50)
-
 
         self.pwm_roll = 0
         self.pwm_pitch = 0
@@ -131,9 +128,6 @@ class Subscriber():
         self.pwm_surge = 0
         self.pwm_sway = 0
         self.pwm_heave = 0
-
-        param_rate = rospy.get_param('/nuc/rate')
-        self.rate = rospy.Rate(param_rate)
 
         # Subscriber
         rospy.Subscriber('error', Error, self.callback_error)
@@ -214,8 +208,6 @@ class Subscriber():
             self.movement.stop()
 
         self.movement.publish()
-
-        self.rate.sleep()
 
     def spin(self):
         rospy.spin()
