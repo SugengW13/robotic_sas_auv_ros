@@ -1,7 +1,10 @@
-int16 roll
-int16 pitch
-int16 yaw
+float32 roll
+float32 pitch
+float32 yaw
 float32 pressure
 float32 temperature
 float32 depth
 float32 altitude
+float32 pos_x
+float32 pos_y
+float32 pos_z

@@ -3,7 +3,7 @@
     <arg name='baud' default='57600' />
 
     <group ns='arduino'>
-        <node pkg='rosserial_python' type='ardu_serial.py' name='node_serial' output='screen'>
+        <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
             <param name='port' value='$(arg port)'/>
             <param name='baud' value='$(arg baud)'/>
         </node>

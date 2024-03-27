@@ -90,6 +90,25 @@ class Subscriber():
 
         rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
 
+    def start_auv(self):
+        if self.param_movement == 'surge':
+            self.movement.surge(self.param_pwm)
+        if self.param_movement == 'sway':
+            self.movement.sway(self.param_pwm)
+        if self.param_movement == 'yaw':
+            self.movement.yaw(self.param_pwm)
+        if self.param_movement == 'heave':
+            self.movement.heave(self.param_pwm)
+        if self.param_movement == 'roll':
+            self.movement.roll(self.param_pwm)
+        if self.param_movement == 'pitch':
+            self.movement.pitch(self.param_pwm)
+        if self.param_movement == 'stop':
+            self.movement.stop()
+
+    def stop_auv(self):
+        self.movement.stop()
+
     def callback_is_start(self, data):
         if data.data:
             if not self.is_start:
@@ -97,23 +116,11 @@ class Subscriber():
                 self.is_start = True
 
             if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
-                if self.param_movement == 'surge':
-                    self.movement.surge(self.param_pwm)
-                if self.param_movement == 'sway':
-                    self.movement.sway(self.param_pwm)
-                if self.param_movement == 'yaw':
-                    self.movement.yaw(self.param_pwm)
-                if self.param_movement == 'heave':
-                    self.movement.heave(self.param_pwm)
-                if self.param_movement == 'roll':
-                    self.movement.roll(self.param_pwm)
-                if self.param_movement == 'pitch':
-                    self.movement.pitch(self.param_pwm)
+                self.start_auv()
+            else:
+                self.stop_auv()
 
-                self.rate.sleep()
-                return
-
-            self.movement.stop()
+            self.rate.sleep()
 
     def spin(self):
         rospy.spin()
