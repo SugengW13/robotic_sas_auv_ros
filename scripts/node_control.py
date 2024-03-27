@@ -4,7 +4,7 @@ import time
 import rospy
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Error, Actuator, Movement
-https://github.com/SugengW13/robotic_sas_auv_ros/pull/73/conflict?name=scripts%252Fnode_control.py&ancestor_oid=e3f967d936b4855db9daeab8ceda1f7d534b9c93&base_oid=b1ccc8ca23c7ce6daff2aa41b5eb1615759f64c5&head_oid=493dd8b8251059ab957cfc37f36df7560e6259fb
+
 class PID():
     def __init__(self, kp, ki, kd):
         self.kp = kp
@@ -59,6 +59,10 @@ class ThrusterMovement():
         self.pwm_actuator.thruster_6 = pwm_thruster_6
         self.pwm_actuator.thruster_7 = pwm_thruster_7
         self.pwm_actuator.thruster_8 = pwm_thruster_8
+
+    def boost(self, pwm):
+        self.pwm_actuator.thruster_9 = 1500 + pwm
+        self.pwm_actuator.thruster_10 = 1500 + pwm
 
     def surge(self, pwm):
         self.pwm_actuator.thruster_1 = 1500 + pwm
@@ -138,13 +142,6 @@ class Subscriber():
         return min(max(value, _min), _max)
 
     def surge_sway_yaw(self):
-        # No modified
-        # pwm_thruster_1 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, 1300, 1700)
-        # pwm_thruster_2 = self.constrain(1500 + self.pwm_surge - self.pwm_sway + self.pwm_yaw, 1300, 1700)
-        # pwm_thruster_3 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw, 1300, 1700)
-        # pwm_thruster_4 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, 1300, 1700)
-        
-        # Modified
         pwm_thruster_1 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, 1470, 1530)
         pwm_thruster_2 = self.constrain(1500 + self.pwm_surge - self.pwm_sway + self.pwm_yaw, 1470, 1530)
         pwm_thruster_3 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw, 1470, 1530)
@@ -152,10 +149,6 @@ class Subscriber():
         self.movement.surge_sway_yaw(pwm_thruster_1, pwm_thruster_2, pwm_thruster_3, pwm_thruster_4)
 
     def heave_roll_pitch(self):
-        # No modified
-        # min_pwm = 1300 if self.error.depth > 0 else 1250
-        # max_pwm = 1700 if self.error.depth > 0 else 1750
-
         min_pwm = 1470 if self.error.depth > 0 else 1495
         max_pwm = 1530 if self.error.depth > 0 else 1505
 
@@ -166,19 +159,15 @@ class Subscriber():
         self.movement.heave_roll_pitch(pwm_thruster_5, pwm_thruster_6, pwm_thruster_7, pwm_thruster_8)
 
     def stabilize_roll(self, error):
-        return
         self.pwm_roll = self.pid_roll(error)
 
     def stabilize_pitch(self, error):
-        return
         self.pwm_pitch = self.pid_pitch(error)
 
     def stabilize_yaw(self, error):
-        # return
         self.pwm_yaw = self.pid_yaw(error)
 
     def stabilize_depth(self, error):
-        return
         self.pwm_heave = self.pid_heave(error)
 
     # Collect Error Data
@@ -191,10 +180,10 @@ class Subscriber():
 
     # Collect Movement Data
     def callback_movement(self, data: Movement):
+        if data.type == 'BOOST':
+            self.movement.boost()
         if data.type == 'SURGE':
-            # self.pwm_surge = data.pwm
-            # Set to 0 for lab test
-            self.pwm_surge = 0
+            self.pwm_surge = data.pwm
         if data.type == 'SWAY':
             self.pwm_sway = data.pwm
         if data.type == 'STOP':
