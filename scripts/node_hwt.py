@@ -8,10 +8,12 @@ from std_msgs.msg import Float32
 param_port = rospy.get_param('/witmotion/port_hwt')
 param_baud = rospy.get_param('/witmotion/baud_hwt')
 
+rate = rospy.Rate(10)
+
 print("start")
 # Open serial connection
 ser = serial.Serial(param_port, param_baud)  # Update 'ttyUSB0' with the correct serial port
-time.sleep(2)  # Wait for serial connection to stabilize
+# time.sleep(2)  # Wait for serial connection to stabilize
 print("port")
 
 # Initialize ROS node
@@ -45,6 +47,8 @@ try:
                 converted_yaw = yaw / 32768.0 * 180.0
                 print(converted_yaw)
                 pub.publish(converted_yaw)  # Publish the yaw value
+
+        rate.sleep()
 
 except rospy.ROSInterruptException:
     pass

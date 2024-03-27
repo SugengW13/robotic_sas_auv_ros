@@ -45,6 +45,8 @@ class ThrusterMovement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
+        self.pwm_actuator.thruster_9 = 1500
+        self.pwm_actuator.thruster_10 = 1500
 
         self.pub_pwm_actuator = rospy.Publisher('pwm_actuator', Actuator, queue_size=10)
 
@@ -68,12 +70,12 @@ class ThrusterMovement():
         self.pwm_actuator.thruster_1 = 1500 + pwm
         self.pwm_actuator.thruster_2 = 1500 + pwm
         self.pwm_actuator.thruster_3 = 1500 + pwm
-        self.pwm_actuator.thruster_4 = 1500 + pwm
+        self.pwm_actuator.thruster_4 = 1500 - pwm
 
     def sway(self, pwm):
-        self.pwm_actuator.thruster_1 = 1500 - pwm
-        self.pwm_actuator.thruster_2 = 1500 + pwm
-        self.pwm_actuator.thruster_3 = 1500 + pwm
+        self.pwm_actuator.thruster_1 = 1500 + pwm
+        self.pwm_actuator.thruster_2 = 1500 - pwm
+        self.pwm_actuator.thruster_3 = 1500 - pwm
         self.pwm_actuator.thruster_4 = 1500 - pwm
 
     def yaw(self, pwm):
@@ -83,16 +85,16 @@ class ThrusterMovement():
         self.pwm_actuator.thruster_4 = 1500 + pwm
 
     def heave(self, pwm):
-        self.pwm_actuator.thruster_5 = 1500 + pwm
-        self.pwm_actuator.thruster_6 = 1500 + pwm
-        self.pwm_actuator.thruster_7 = 1500 - pwm
-        self.pwm_actuator.thruster_8 = 1500 - pwm
-
-    def roll(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 - pwm
         self.pwm_actuator.thruster_6 = 1500 + pwm
         self.pwm_actuator.thruster_7 = 1500 + pwm
-        self.pwm_actuator.thruster_8 = 1500 - pwm
+        self.pwm_actuator.thruster_8 = 1500 + pwm
+
+    def roll(self, pwm):
+        self.pwm_actuator.thruster_5 = 1500 + pwm
+        self.pwm_actuator.thruster_6 = 1500 - pwm
+        self.pwm_actuator.thruster_7 = 1500 - pwm
+        self.pwm_actuator.thruster_8 = 1500 + pwm
 
     def pitch(self, pwm):
         self.pwm_actuator.thruster_5 = 1500 + pwm
@@ -109,6 +111,8 @@ class ThrusterMovement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
+        self.pwm_actuator.thruster_9 = 1500
+        self.pwm_actuator.thruster_10 = 1500
 
     def publish(self):
         self.pub_pwm_actuator.publish(self.pwm_actuator)
@@ -121,8 +125,8 @@ class Subscriber():
         self.movement.stop()
 
         self.pid_heave = PID(1000, 0, 0)
-        self.pid_roll = PID(500, 20, 50)
-        self.pid_pitch = PID(500, 20, 50)
+        self.pid_roll = PID(1500, 2, 20)
+        self.pid_pitch = PID(1000, 0, 0)
         self.pid_yaw = PID(1200, 20, 50)
 
         self.pwm_roll = 0
@@ -142,33 +146,40 @@ class Subscriber():
         return min(max(value, _min), _max)
 
     def surge_sway_yaw(self):
-        pwm_thruster_1 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, 1470, 1530)
-        pwm_thruster_2 = self.constrain(1500 + self.pwm_surge - self.pwm_sway + self.pwm_yaw, 1470, 1530)
-        pwm_thruster_3 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw, 1470, 1530)
-        pwm_thruster_4 = self.constrain(1500 + self.pwm_surge + self.pwm_sway + self.pwm_yaw, 1470, 1530)
+        min_pwm = 1200
+        max_pwm = 1800
+
+        pwm_thruster_1 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw, min_pwm, max_pwm)
+        pwm_thruster_2 = self.constrain(1500 + self.pwm_surge + self.pwm_sway + self.pwm_yaw, min_pwm, max_pwm)
+        pwm_thruster_3 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, min_pwm, max_pwm)
+        pwm_thruster_4 = self.constrain(1500 - self.pwm_surge + self.pwm_sway + self.pwm_yaw, min_pwm, max_pwm)
         self.movement.surge_sway_yaw(pwm_thruster_1, pwm_thruster_2, pwm_thruster_3, pwm_thruster_4)
 
     def heave_roll_pitch(self):
-        min_pwm = 1470 if self.error.depth > 0 else 1495
-        max_pwm = 1530 if self.error.depth > 0 else 1505
+        min_pwm = 1200
+        max_pwm = 1800
 
-        pwm_thruster_5 = self.constrain(1500 + self.pwm_heave - self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
-        pwm_thruster_6 = self.constrain(1500 + self.pwm_heave - self.pwm_roll + self.pwm_pitch, min_pwm, max_pwm)
-        pwm_thruster_7 = self.constrain(1500 - self.pwm_heave + self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
-        pwm_thruster_8 = self.constrain(1500 - self.pwm_heave - self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_5 = self.constrain(1500 - self.pwm_heave + self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_6 = self.constrain(1500 + self.pwm_heave + self.pwm_roll + self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_7 = self.constrain(1500 + self.pwm_heave - self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
+        pwm_thruster_8 = self.constrain(1500 + self.pwm_heave + self.pwm_roll - self.pwm_pitch, min_pwm, max_pwm)
         self.movement.heave_roll_pitch(pwm_thruster_5, pwm_thruster_6, pwm_thruster_7, pwm_thruster_8)
 
     def stabilize_roll(self, error):
+        # return
         self.pwm_roll = self.pid_roll(error)
 
     def stabilize_pitch(self, error):
-        self.pwm_pitch = self.pid_pitch(error)
+        return
+        self.pwm_pitch = self.pid_pitch(error) * (-1)
 
     def stabilize_yaw(self, error):
+        return
         self.pwm_yaw = self.pid_yaw(error)
 
     def stabilize_depth(self, error):
-        self.pwm_heave = self.pid_heave(error)
+        return
+        self.pwm_heave = self.pid_heave(error) * (-1)
 
     # Collect Error Data
     def callback_error(self, data: Error):
@@ -186,6 +197,14 @@ class Subscriber():
             self.pwm_surge = data.pwm
         if data.type == 'SWAY':
             self.pwm_sway = data.pwm
+        if data.type == 'YAW':
+            self.pwm_yaw = data.pwm
+        if data.type == 'HEAVE':
+            self.pwm_heave = data.pwm
+        if data.type == 'ROLL':
+            self.pwm_roll = data.pwm
+        if data.type == 'PITCH':
+            self.pwm_pitch = data.pwm
         if data.type == 'STOP':
             self.movement.stop()
 

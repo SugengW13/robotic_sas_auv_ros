@@ -18,7 +18,9 @@ class Subscriber():
         self.set_point.roll = 0
         self.set_point.pitch = 0
         self.set_point.yaw = 0.9
-        self.set_point.depth = 0
+        self.set_point.depth = 0.5
+
+        self.rate = rospy.Rate(10)
 
         self.param_delay = rospy.get_param('/nuc/delay')
         self.param_duration = rospy.get_param('/nuc/duration')
@@ -58,20 +60,20 @@ class Subscriber():
         self.pub_is_start.publish(True)
 
         # Dive
-        if self.is_in_range(1, 2):
-            self.set_depth(-0.5)
+        # if self.is_in_range(1, 2):
+        #     self.set_depth(-0.5)
 
         # Forward
-        if self.is_in_range(2, 6):
-            self.publish_movement('SURGE', 100)
+        # if self.is_in_range(1, None):
+        #     self.publish_movement('ROLL', -100)
 
         # Surfacing
-        if self.is_in_range(7, 8):
-            self.set_depth(0)
+        # if self.is_in_range(7, 8):
+        #     self.set_depth(0)
 
         # End
-        if self.is_in_range(9, None):
-            self.stop_auv()
+        # if self.is_in_range(9, None):
+        #     self.stop_auv()
 
     def stop_auv(self):
         rospy.loginfo('STOP')
@@ -93,6 +95,8 @@ class Subscriber():
                 self.start_auv()
             else:
                 self.stop_auv()
+
+        self.rate.sleep()
 
     def spin(self):
         rospy.spin()

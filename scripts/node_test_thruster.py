@@ -16,6 +16,8 @@ class Movement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
+        self.pwm_actuator.thruster_9 = 1500
+        self.pwm_actuator.thruster_10 = 1500
 
         self.pub_pwm_actuator = rospy.Publisher('pwm_actuator', Actuator, queue_size=10)
 
@@ -70,6 +72,8 @@ class Movement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
+        self.pwm_actuator.thruster_9 = 1500
+        self.pwm_actuator.thruster_10 = 1500
         self.publish()
 
     def publish(self):

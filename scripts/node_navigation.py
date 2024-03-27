@@ -47,9 +47,9 @@ class Subscriber():
         error_depth = self.set_point.depth - data.depth
 
         # Determine Stable Position
-        self.is_stable.roll = self.generate_is_stable(0.1, error_roll)
-        self.is_stable.pitch = self.generate_is_stable(0.1, error_pitch)
-        self.is_stable.yaw = self.generate_is_stable(0.025, error_yaw)
+        self.is_stable.roll = self.generate_is_stable(0, error_roll)
+        self.is_stable.pitch = self.generate_is_stable(0, error_pitch)
+        self.is_stable.yaw = self.generate_is_stable(0, error_yaw)
         self.is_stable.depth = self.generate_is_stable(0.05, error_depth)
 
         # Validate Error Value
