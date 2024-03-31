@@ -1,5 +1,5 @@
 witmotion_imu:
-    port: ttyUSB1
+    port: witmotion
     baud_rate: 9600 # baud
     polling_interval: 50 # ms
     timeout_ms: 150 # ms

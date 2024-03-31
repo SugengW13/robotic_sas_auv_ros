@@ -1,56 +1,49 @@
 #!/usr/bin/env python3
 
-import serial
-import time
 import rospy
-from std_msgs.msg import Float32
+import serial
+from std_msgs.msg import Bool, Float32
 
-param_port = rospy.get_param('/witmotion/port_hwt')
-param_baud = rospy.get_param('/witmotion/baud_hwt')
+class Subscriber():
+    def __init__ (self):
+        param_port = rospy.get_param('port_hwt')
+        param_baud = rospy.get_param('/witmotion/baud_hwt')
 
-rate = rospy.Rate(10)
+        self.ser = serial.Serial(param_port, param_baud)
 
-print("start")
-# Open serial connection
-ser = serial.Serial(param_port, param_baud)  # Update 'ttyUSB0' with the correct serial port
-# time.sleep(2)  # Wait for serial connection to stabilize
-print("port")
+        # Publisher
+        self.pub_heading = rospy.Publisher('/hwt/heading', Float32, queue_size=10)
 
-# Initialize ROS node
-rospy.init_node('node_hwt')
+        # Subscriber
+        rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
 
-# Create publisher
-pub = rospy.Publisher('/hwt/heading', Float32, queue_size=10)
+    def publish_heading(self):
+        self.ser.write(bytes([0x33]))
 
-try:
-    while not rospy.is_shutdown():
-        # Request data from the sensor
-        ser.write(bytes([0x33]))  # Command to request data
-
-        # Read data from the sensor
-        start_time = time.time()
-        while ser.in_waiting == 0:
-            if time.time() - start_time > 5:  # Timeout after 5 seconds
-                print("Timeout waiting for data")
-                break
-
-        # Read data from the sensor
-        data = ser.readline()  # Read a line of data
-        # print(f"Received data: {data}")  # Print the raw data
-
-        # Extract yaw value from the data
-        data_str = data.decode('utf-8')  # Convert bytes to string
+        data = self.ser.readline()
+        rospy.loginfo(data)
+        data_str = data.decode('utf-8')
+        
         for item in data_str.split(','):
             if 'Yaw' in item:
-                yaw_str = item.split(':')[1]  # Get the value after 'Yaw:'
-                yaw = float(yaw_str)  # Convert the yaw value to float
-                converted_yaw = yaw / 32768.0 * 180.0
-                print(converted_yaw)
-                pub.publish(converted_yaw)  # Publish the yaw value
+                yaw = float(item.split(':')[1])
+                converted_yaw = (yaw / 32768) * 180.0
+                self.pub_heading.publish(converted_yaw)
 
-        rate.sleep()
+    def callback_is_start(self, data: Bool):
+        if data.data:
+            rospy.loginfo(data.data)
+            self.publish_heading()
 
-except rospy.ROSInterruptException:
-    pass
-finally:
-    ser.close()
+    def spin(self):
+        rospy.spin()
+
+def main():
+    rospy.init_node('node_hwt', anonymous=True)
+
+    subscriber = Subscriber()
+
+    subscriber.spin()
+
+if __name__ == '__main__':
+    main()

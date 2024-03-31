@@ -1,5 +1,5 @@
 <launch>
-    <arg name='port' default='/dev/ttyUSB0' />
+    <arg name='port' default='/dev/rosserial' />
     <arg name='baud' default='57600' />
 
     <group ns='arduino'>
