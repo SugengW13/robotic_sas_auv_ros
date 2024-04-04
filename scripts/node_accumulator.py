@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
+import time
 from std_msgs.msg import Bool, Float32
 from sensor_msgs.msg import Imu
 from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, BoundingBox, ObjectDetection
@@ -9,6 +10,14 @@ from detection_msgs.msg import BoundingBoxes
 
 class Subscriber():
     def __init__(self):
+        self.start_call = 0
+
+        self.offset_roll = 0
+        self.offset_pitch = 0
+        self.offset_yaw = 0
+
+        self.offset_depth = 0
+
         self.sensor = Sensor()
         self.object_detection = ObjectDetection()
 
@@ -18,15 +27,26 @@ class Subscriber():
 
         # Subscriber
         rospy.Subscriber('is_start', Bool, self.callback_is_start)
-        rospy.Subscriber('/arduino/sensor', ArduinoSensor, self.callback_arduino_sensor)
+        rospy.Subscriber('/rosserial/sensor', ArduinoSensor, self.callback_arduino_sensor)
         rospy.Subscriber('/camera/odom/sample', Odometry, self.callback_odometry)
         rospy.Subscriber('/imu', Imu, self.callback_imu)
-        rospy.Subscriber('/heading', Float32, self.callback_heading)
+        rospy.Subscriber('/hwt/heading', Float32, self.callback_heading)
         rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.callback_bounding_boxes)
+
+    def pre_calibrate(self):
+        if self.start_call < 3:
+            self.offset_roll = int(self.sensor.roll)
+            self.offset_pitch = int(self.sensor.pitch)
+            self.offset_yaw = int(self.sensor.yaw)
+            self.offset_depth = int(self.sensor.depth)
+
+            self.start_call += 1
+
+            time.sleep(1)
 
     # Collect Arduino Sensor Data
     def callback_arduino_sensor(self, data: ArduinoSensor):
-        self.sensor.depth = data.depth
+        self.sensor.depth = data.depth - self.offset_depth
 
     # Collect Realsense Position Data
     def callback_odometry(self, data: Odometry):
@@ -36,12 +56,16 @@ class Subscriber():
 
     # Collect WitMotion Data
     def callback_imu(self, data: Imu):
-        self.sensor.roll = round(data.orientation.x, 3)
-        self.sensor.pitch = round(data.orientation.y, 3)
-        # self.sensor.yaw = round(data.orientation.z, 3)
+        print(self.offset_yaw, 'offset')
+        self.sensor.roll = round(data.orientation.x, 3) - self.offset_roll
+        self.sensor.pitch = round(data.orientation.y, 3) - self.offset_pitch
+        self.sensor.yaw = round(data.orientation.z, 3) - self.offset_yaw
     
+        self.pre_calibrate()
+
     def callback_heading(self, data):
-        self.sensor.yaw = round(data.data)
+        return
+        self.sensor.yaw = round(data.data, 3)
 
     # Collect BoundingBoxes Data
     def callback_bounding_boxes(self, data: BoundingBoxes):
@@ -58,9 +82,8 @@ class Subscriber():
 
         rospy.loginfo(self.object_detection.bounding_boxes)
 
-
     def callback_is_start(self, data: Bool):
-        if data.data:   
+        if data.data:
             self.pub_sensor.publish(self.sensor)
             self.pub_object_detection.publish(self.object_detection)
 

@@ -17,8 +17,8 @@ class Subscriber():
 
         self.set_point.roll = 0
         self.set_point.pitch = 0
-        self.set_point.yaw = -0.10
-        self.set_point.depth = 0.5
+        self.set_point.yaw = 0
+        self.set_point.depth = 0
 
         self.param_delay = rospy.get_param('/nuc/delay')
         self.param_duration = rospy.get_param('/nuc/duration')
@@ -29,7 +29,7 @@ class Subscriber():
         self.pub_movement = rospy.Publisher('movement', Movement, queue_size=10)
 
         # Subscriber
-        rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
         rospy.Subscriber('is_stable', IsStable, self.callback_is_stable)
 
     def set_depth(self, depth):
@@ -53,6 +53,10 @@ class Subscriber():
         if self.boot_time <= self.param_delay:
             rospy.loginfo('STARTING...')
             return
+        
+        # if self.is_in_range(20, None):
+        #     self.stop_auv()
+        #     return
 
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
