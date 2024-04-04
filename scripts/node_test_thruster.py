@@ -92,7 +92,7 @@ class Subscriber():
 
         self.rate = rospy.Rate(10)
 
-        rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
 
     def start_auv(self):
         if self.param_movement == 'surge':

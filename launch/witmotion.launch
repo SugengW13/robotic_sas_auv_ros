@@ -8,7 +8,7 @@
         
         <rosparam command="load" file="$(find robotic_sas_auv_ros)/config/config.yml" />
 
-        <!-- <node name="witmotion_imu" pkg="witmotion_ros"  type="witmotion_ros_node" output="screen"/> -->
+        <node name="witmotion_imu" pkg="witmotion_ros"  type="witmotion_ros_node" output="screen"/>
         <node name="node_hwt" pkg="robotic_sas_auv_ros"  type="node_hwt.py" output="screen"/>
     </group>
 </launch>

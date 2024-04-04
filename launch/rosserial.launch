@@ -1,11 +1,19 @@
 <launch>
-    <arg name='port' default='/dev/rosserial' />
-    <arg name='baud' default='57600' />
+    <arg name='port_arduino' default='/dev/rosserial_arduino' />
+    <arg name='baud_arduino' default='57600' />
 
-    <group ns='arduino'>
-        <node pkg='rosserial_python' type='serial_node.py' name='node_serial' output='screen'>
-            <param name='port' value='$(arg port)'/>
-            <param name='baud' value='$(arg baud)'/>
+    <arg name='port_teensy' default='/dev/rosserial_teensy' />
+    <arg name='baud_teensy' default='57600' />
+
+    <group ns='rosserial'>
+        <node pkg='robotic_sas_auv_ros' type='node_arduino.py' name='node_arduino' output='screen'>
+            <param name='port_arduino' value='$(arg port_arduino)'/>
+            <param name='baud_arduino' value='$(arg baud_arduino)'/>
+        </node>
+
+        <node pkg='robotic_sas_auv_ros' type='node_teensy.py' name='node_teensy' output='screen'>
+            <param name='port_teensy' value='$(arg port_teensy)'/>
+            <param name='baud_teensy' value='$(arg baud_teensy)'/>
         </node>
     </group>
 </launch>
