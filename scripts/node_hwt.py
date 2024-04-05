@@ -5,7 +5,6 @@ import serial
 from std_msgs.msg import Float32
 
 def main():
-    print('asdfasdfasdf')
     param_port = rospy.get_param('port_hwt')
     param_baud = rospy.get_param('/witmotion/baud_hwt')
 
