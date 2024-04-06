@@ -52,6 +52,7 @@ add_message_files(
   Sensor.msg
   Movement.msg
   ArduinoSensor.msg
+  Heading.msg
   Actuator.msg
   SetPoint.msg
   Error.msg

@@ -61,21 +61,8 @@ class Subscriber():
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
 
-        # Dive
         # if self.is_in_range(1, 2):
         #     self.set_depth(-0.5)
-
-        # Forward
-        # if self.is_in_range(1, None):
-        #     self.publish_movement('ROLL', -100)
-
-        # Surfacing
-        # if self.is_in_range(7, 8):
-        #     self.set_depth(0)
-
-        # End
-        # if self.is_in_range(9, None):
-        #     self.stop_auv()
 
     def stop_auv(self):
         rospy.loginfo('STOP')

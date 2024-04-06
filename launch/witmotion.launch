@@ -1,14 +1,16 @@
 <launch>
-    <arg name='port_hwt' default='/dev/HWTsensor' />
-    <arg name='baud_hwt' default='9600' />
+    <arg name='port_heading' default='/dev/ttyUSB0' />
+    <arg name='baud_heading' default='115200' />
+    <arg name='rate_heading' default='20' />
 
     <group ns='witmotion'>
-        <param name='port_hwt' value='$(arg port_hwt)'/>
-        <param name='baud_hwt' value='$(arg baud_hwt)'/>
+        <param name='port_heading' value='$(arg port_heading)'/>
+        <param name='baud_heading' value='$(arg baud_heading)'/>
+        <param name='rate_heading' value='$(arg rate_heading)'/>
         
         <rosparam command="load" file="$(find robotic_sas_auv_ros)/config/config.yml" />
 
-        <node name="witmotion_imu" pkg="witmotion_ros"  type="witmotion_ros_node" output="screen"/>
-        <node name="node_hwt" pkg="robotic_sas_auv_ros"  type="node_hwt.py" output="screen"/>
+        <node name="witmotion_imu" pkg="witmotion_ros" type="witmotion_ros_node" output="screen"/>
+        <node name="node_heading" pkg="robotic_sas_auv_ros" type="node_heading.py" output="screen"/>
     </group>
 </launch>

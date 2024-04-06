@@ -125,9 +125,9 @@ class Subscriber():
         self.movement.stop()
 
         self.pid_heave = PID(1000, 0, 0)
-        self.pid_roll = PID(1000, 2, 20)
+        self.pid_roll = PID(1000, 0, 0)
         self.pid_pitch = PID(1000, 0, 0)
-        self.pid_yaw = PID(1000, 0, 0)
+        self.pid_yaw = PID(1, 0, 0)
 
         self.start_call = 0
 
@@ -215,7 +215,7 @@ class Subscriber():
         self.error = data
         self.stabilize_roll(data.roll)
         self.stabilize_pitch(data.pitch)    
-        # self.stabilize_depth(data.depth)
+        self.stabilize_depth(data.depth)
         self.stabilize_yaw(data.yaw)
 
     # Collect Movement Data
