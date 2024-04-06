@@ -2,9 +2,9 @@
 
 import rospy
 import time
-from std_msgs.msg import Bool, Float32
+from std_msgs.msg import Bool
 from sensor_msgs.msg import Imu
-from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, BoundingBox, ObjectDetection
+from robotic_sas_auv_ros.msg import ArduinoSensor, Sensor, BoundingBox, ObjectDetection, Heading
 from nav_msgs.msg import Odometry
 from detection_msgs.msg import BoundingBoxes
 
@@ -30,7 +30,7 @@ class Subscriber():
         rospy.Subscriber('/rosserial/sensor', ArduinoSensor, self.callback_arduino_sensor)
         rospy.Subscriber('/camera/odom/sample', Odometry, self.callback_odometry)
         rospy.Subscriber('/imu', Imu, self.callback_imu)
-        rospy.Subscriber('/hwt/heading', Float32, self.callback_heading)
+        rospy.Subscriber('/witmotion/heading', Heading, self.callback_heading)
         rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.callback_bounding_boxes)
 
     def pre_calibrate(self):
@@ -56,16 +56,13 @@ class Subscriber():
 
     # Collect WitMotion Data
     def callback_imu(self, data: Imu):
-        print(self.offset_yaw, 'offset')
         self.sensor.roll = round(data.orientation.x, 3) - self.offset_roll
         self.sensor.pitch = round(data.orientation.y, 3) - self.offset_pitch
-        self.sensor.yaw = round(data.orientation.z, 3) - self.offset_yaw
     
         self.pre_calibrate()
 
-    def callback_heading(self, data):
-        return
-        self.sensor.yaw = round(data.data, 3)
+    def callback_heading(self, data: Heading):
+        self.sensor.yaw = round(data.yaw) - self.offset_yaw
 
     # Collect BoundingBoxes Data
     def callback_bounding_boxes(self, data: BoundingBoxes):
