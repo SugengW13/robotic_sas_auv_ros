@@ -32,10 +32,7 @@ class Subscriber():
         return error
     
     def calculate_heading_error(self, current, target):
-        return target - current
-
-    def calculate_compass_error(self, current, target):
-        return (target - current + 180) % 360 - 180
+        return (current - target + 180) % 360 - 180
 
     # Collect SetPoint Data
     def callback_set_point(self, data: SetPoint):
