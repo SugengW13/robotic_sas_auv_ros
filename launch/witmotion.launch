@@ -1,6 +1,16 @@
 <launch>
+    <arg name='port_heading' default='/dev/ttyUSB0' />
+    <arg name='baud_heading' default='115200' />
+    <arg name='rate_heading' default='20' />
+
     <group ns='witmotion'>
-        <rosparam command="load" file="$(find witmotion_ros)/config/config.yml" />
-        <node name="witmotion_imu" pkg="witmotion_ros"  type="witmotion_ros_node" output="screen"/>
+        <param name='port_heading' value='$(arg port_heading)'/>
+        <param name='baud_heading' value='$(arg baud_heading)'/>
+        <param name='rate_heading' value='$(arg rate_heading)'/>
+        
+        <rosparam command="load" file="$(find robotic_sas_auv_ros)/config/config.yml" />
+
+        <node name="witmotion_imu" pkg="witmotion_ros" type="witmotion_ros_node" output="screen"/>
+        <node name="node_heading" pkg="robotic_sas_auv_ros" type="node_heading.py" output="screen"/>
     </group>
 </launch>

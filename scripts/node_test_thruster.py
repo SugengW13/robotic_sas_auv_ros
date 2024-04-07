@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-import time
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Actuator
 
@@ -16,6 +15,8 @@ class Movement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
+        self.pwm_actuator.thruster_9 = 1500
+        self.pwm_actuator.thruster_10 = 1500
 
         self.pub_pwm_actuator = rospy.Publisher('pwm_actuator', Actuator, queue_size=10)
 
@@ -70,6 +71,8 @@ class Movement():
         self.pwm_actuator.thruster_6 = 1500
         self.pwm_actuator.thruster_7 = 1500
         self.pwm_actuator.thruster_8 = 1500
+        self.pwm_actuator.thruster_9 = 1500
+        self.pwm_actuator.thruster_10 = 1500
         self.publish()
 
     def publish(self):
@@ -78,7 +81,7 @@ class Movement():
 class Subscriber():
     def __init__(self):
         self.is_start = False
-        self.start_time = None
+        self.start_time = 0
 
         self.movement = Movement()
 
@@ -88,7 +91,7 @@ class Subscriber():
 
         self.rate = rospy.Rate(10)
 
-        rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
 
     def start_auv(self):
         if self.param_movement == 'surge':
@@ -112,10 +115,10 @@ class Subscriber():
     def callback_is_start(self, data):
         if data.data:
             if not self.is_start:
-                self.start_time = time.time()
+                self.start_time = rospy.get_time()
                 self.is_start = True
 
-            if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
+            if rospy.get_time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
                 self.start_auv()
             else:
                 self.stop_auv()

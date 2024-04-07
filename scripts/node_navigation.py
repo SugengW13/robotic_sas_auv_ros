@@ -30,9 +30,9 @@ class Subscriber():
         if error > 1:
             error -= 2
         return error
-
-    def calculate_compass_error(self, current, target):
-        return (target - current + 180) % 360 - 180
+    
+    def calculate_heading_error(self, current, target):
+        return (current - target + 180) % 360 - 180
 
     # Collect SetPoint Data
     def callback_set_point(self, data: SetPoint):
@@ -43,13 +43,13 @@ class Subscriber():
         # Calculate Error Value
         error_roll = self.calculate_orientation_error(data.roll, self.set_point.roll)
         error_pitch = self.calculate_orientation_error(data.pitch, self.set_point.pitch)
-        error_yaw = self.calculate_orientation_error(data.yaw, self.set_point.yaw)
+        error_yaw = self.calculate_heading_error(data.yaw, self.set_point.yaw)
         error_depth = self.set_point.depth - data.depth
 
         # Determine Stable Position
-        self.is_stable.roll = self.generate_is_stable(0.1, error_roll)
-        self.is_stable.pitch = self.generate_is_stable(0.1, error_pitch)
-        self.is_stable.yaw = self.generate_is_stable(0.025, error_yaw)
+        self.is_stable.roll = self.generate_is_stable(0, error_roll)
+        self.is_stable.pitch = self.generate_is_stable(0, error_pitch)
+        self.is_stable.yaw = self.generate_is_stable(0, error_yaw)
         self.is_stable.depth = self.generate_is_stable(0.05, error_depth)
 
         # Validate Error Value

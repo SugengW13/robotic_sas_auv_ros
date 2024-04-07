@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-import time
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import SetPoint, IsStable, Movement
 
@@ -29,18 +28,21 @@ class Subscriber():
         self.pub_movement = rospy.Publisher('movement', Movement, queue_size=10)
 
         # Subscriber
-        rospy.Subscriber('/arduino/is_start', Bool, self.callback_is_start)
+        rospy.Subscriber('/rosserial/is_start', Bool, self.callback_is_start)
         rospy.Subscriber('is_stable', IsStable, self.callback_is_stable)
 
     def set_depth(self, depth):
+        # Change depth set point from the given value
         rospy.loginfo('Set Depth %s', depth)
         self.set_point.depth = depth
 
     def set_heading(self, heading):
+        # Change yaw set point from the given value
         rospy.loginfo('Set Heading %s', heading)
         self.set_point.yaw = heading
 
     def publish_movement(self, type, pwm):
+        # Publish command and pwm value to node control
         rospy.loginfo('Set %s %s', type, pwm)
         self.movement.type = type
         self.movement.pwm = pwm
@@ -50,30 +52,36 @@ class Subscriber():
         return (self.boot_time > start_time + self.param_delay and end_time is None) or (start_time + self.param_delay) < self.boot_time < (end_time + self.param_delay)
 
     def start_auv(self):
-        if self.boot_time <= self.param_delay:
-            rospy.loginfo('STARTING...')
+        # Declares mission planning
+
+        # Stop AUV when the timer reaches 27 secs since pre calibration
+        if self.is_in_range(27, None):
+            self.stop_auv()
             return
 
+        # Start AUV mission
         self.pub_set_point.publish(self.set_point)
         self.pub_is_start.publish(True)
 
-        # Dive
-        if self.is_in_range(1, 2):
-            self.set_depth(-0.5)
+        # Set mission using timer, is_in_range(start_time, end_time)
+        if self.is_in_range(1, 3):
+            # Set target depth
+            self.set_depth(0.5)
 
-        # Forward
-        if self.is_in_range(2, 6):
-            self.publish_movement('SURGE', 100)
+        if self.is_in_range(4, 14):
+            # Surge with the speed of 200, publish_movement(command, pwm)
+            self.publish_movement('SURGE', 200)
 
-        # Surfacing
-        if self.is_in_range(7, 8):
-            self.set_depth(0)
+        if self.is_in_range(15, 20):
+            # Set target heading
+            self.set_heading(180)
 
-        # End
-        if self.is_in_range(9, None):
-            self.stop_auv()
+        if self.is_in_range(21, 26):
+            # Surge with the speed of 200, publish_movement(command, pwm)
+            self.publish_movement('SURGE', 200)
 
     def stop_auv(self):
+        # Stop AUV
         rospy.loginfo('STOP')
         self.pub_is_start.publish(False)
 
@@ -83,12 +91,21 @@ class Subscriber():
 
     def callback_is_start(self, data: Bool):
         if data.data:
+            # Generate boot time
+            self.boot_time = rospy.get_time() - self.start_time
+            
+            # Wait for a secs to tell other nodes (accumulator & control) to calibrate
+            if self.boot_time < self.param_delay:
+                rospy.loginfo('STARTING...')
+                self.pub_is_start.publish(False)
+                return
+
+            # Set start time
             if not self.is_start:
-                self.start_time = time.time()
+                self.start_time = rospy.get_time()
                 self.is_start = True
 
-            self.boot_time = time.time() - self.start_time
-
+            # Timer condition
             if self.boot_time < self.param_duration if self.param_duration >= 0 else True:
                 self.start_auv()
             else:
