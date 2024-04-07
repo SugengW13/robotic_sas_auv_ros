@@ -22,6 +22,7 @@ def main():
     try:
         while not rospy.is_shutdown():
             data_str = ser.readline().decode('utf-8').strip()
+            rospy.loginfo(data_str)
 
             for data in data_str.split(','):
                 data_name, data_value = data.split(':')

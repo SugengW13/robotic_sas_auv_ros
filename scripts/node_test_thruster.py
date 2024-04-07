@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import rospy
-import time
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Actuator
 
@@ -82,7 +81,7 @@ class Movement():
 class Subscriber():
     def __init__(self):
         self.is_start = False
-        self.start_time = None
+        self.start_time = 0
 
         self.movement = Movement()
 
@@ -116,10 +115,10 @@ class Subscriber():
     def callback_is_start(self, data):
         if data.data:
             if not self.is_start:
-                self.start_time = time.time()
+                self.start_time = rospy.get_time()
                 self.is_start = True
 
-            if time.time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
+            if rospy.get_time() - self.start_time < self.param_duration if self.param_duration >= 0 else True:
                 self.start_auv()
             else:
                 self.stop_auv()

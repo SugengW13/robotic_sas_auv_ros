@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import time
 import rospy
 from std_msgs.msg import Bool
 from robotic_sas_auv_ros.msg import Error, Actuator, Movement
@@ -15,13 +14,13 @@ class PID():
         self.integral = 0
         self.derivative = 0
 
-        self.start_time = time.time()
-        self.last_time = None
+        self.start_time = rospy.get_time()
+        self.last_time = 0
 
         self.last_error = 0
 
     def __call__(self, error):
-        dt = time.time() - (self.last_time if self.last_time is not None else self.start_time)
+        dt = rospy.get_time() - (self.last_time if self.last_time is not None else self.start_time)
 
         d_error = error - self.last_error
 
@@ -30,7 +29,7 @@ class PID():
         self.derivative = self.kd * d_error / dt
 
         self.last_error = error
-        self.last_time = time.time()
+        self.last_time = rospy.get_time()
 
         return self.proportional + self.integral + self.derivative
 
@@ -124,20 +123,24 @@ class Subscriber():
         self.movement = ThrusterMovement()
         self.movement.stop()
 
+        self.param_arming_duration = rospy.get_param('/nuc/arming_duration')
+
         self.pid_heave = PID(1000, 0, 0)
         self.pid_roll = PID(1000, 0, 0)
         self.pid_pitch = PID(1000, 0, 0)
         self.pid_yaw = PID(1, 0, 0)
 
-        self.start_call = 0
+        self.start_time = 0
+        self.is_armed = False
+        self.is_pre_calibrating = False
 
-        self.val_roll = 0
-        self.val_pitch = 0
-        self.val_yaw = 0
+        self.offset_roll = 0
+        self.offset_pitch = 0
+        self.offset_yaw = 0
 
-        self.val_surge = 0
-        self.val_sway = 0
-        self.val_heave = 0
+        self.offset_surge = 0
+        self.offset_sway = 0
+        self.offset_heave = 0
 
         self.pwm_roll = 0
         self.pwm_pitch = 0
@@ -156,48 +159,44 @@ class Subscriber():
         return min(max(value, _min), _max)
 
     def pre_calibrate(self):
-        if self.start_call < 3:
-            self.val_heave = int(self.pwm_heave)
-            self.val_roll = int(self.pwm_roll)
-            self.val_pitch = int(self.pwm_pitch)
+        # Set offset values in order to set the initial pwm values to zero
+        self.offset_roll = self.pwm_roll
+        self.offset_pitch = self.pwm_pitch
+        self.offset_yaw = self.pwm_yaw
 
-            self.val_yaw = int(self.pwm_yaw)
+        self.offset_surge = self.pwm_surge
+        self.offset_sway = self.pwm_sway
+        self.offset_heave = self.pwm_heave
 
-            self.start_call += 1
+    def get_offset(self, offset):
+        # Return the given offset if the pre calibration is complete
+        return offset if not self.is_pre_calibrating else 0
 
-            time.sleep(1)
-
+    # Calculate surge, sway & yaw movement
     def surge_sway_yaw(self):
-        min_pwm = 1400
-        max_pwm = 1600
-
-        print(self.pwm_yaw)
-
-        self.pre_calibrate()
-
-        pwm_thruster_1 = self.constrain(1500 + self.pwm_surge + self.pwm_sway - self.pwm_yaw, min_pwm, max_pwm)
-        pwm_thruster_2 = self.constrain(1500 + self.pwm_surge - self.pwm_sway + self.pwm_yaw, min_pwm, max_pwm)
-        pwm_thruster_3 = self.constrain(1500 + self.pwm_surge - self.pwm_sway - self.pwm_yaw, min_pwm, max_pwm)
-        pwm_thruster_4 = self.constrain(1500 - self.pwm_surge - self.pwm_sway - self.pwm_yaw, min_pwm, max_pwm)
-
-        self.movement.surge_sway_yaw(pwm_thruster_1, pwm_thruster_2, pwm_thruster_3, pwm_thruster_4)
-        
-    def heave_roll_pitch(self):
         min_pwm = 1200
         max_pwm = 1800
 
-        self.pre_calibrate()
+        pwm_thruster_1 = self.constrain(1500 + (self.pwm_surge - self.get_offset(self.offset_surge)) + (self.pwm_sway - self.get_offset(self.offset_sway)) - (self.pwm_yaw - self.get_offset(self.offset_yaw)), min_pwm, max_pwm)
+        pwm_thruster_2 = self.constrain(1500 + (self.pwm_surge - self.get_offset(self.offset_surge)) - (self.pwm_sway - self.get_offset(self.offset_sway)) + (self.pwm_yaw - self.get_offset(self.offset_yaw)), min_pwm, max_pwm)
+        pwm_thruster_3 = self.constrain(1500 + (self.pwm_surge - self.get_offset(self.offset_surge)) - (self.pwm_sway - self.get_offset(self.offset_sway)) - (self.pwm_yaw - self.get_offset(self.offset_yaw)), min_pwm, max_pwm)
+        pwm_thruster_4 = self.constrain(1500 - (self.pwm_surge - self.get_offset(self.offset_surge)) - (self.pwm_sway - self.get_offset(self.offset_sway)) - (self.pwm_yaw - self.get_offset(self.offset_yaw)), min_pwm, max_pwm)
 
-        front_kp = 1
-        back_kp = 1
+        self.movement.surge_sway_yaw(pwm_thruster_1, pwm_thruster_2, pwm_thruster_3, pwm_thruster_4)
+
+    # Calculate heave, roll & pitch movement
+    def heave_roll_pitch(self):
+        min_pwm = 1200
+        max_pwm = 1800
         
-        pwm_thruster_5 = self.constrain(1500 + ((self.pwm_heave) + ((self.pwm_roll - self.val_roll) * front_kp) + ((self.pwm_pitch - self.val_pitch))), min_pwm, max_pwm)
-        pwm_thruster_6 = self.constrain(1500 + ((self.pwm_heave) - ((self.pwm_roll - self.val_roll) * front_kp) + ((self.pwm_pitch - self.val_pitch))), min_pwm, max_pwm)
-        pwm_thruster_7 = self.constrain(1500 + ((self.pwm_heave) + ((self.pwm_roll - self.val_roll) * back_kp) - ((self.pwm_pitch - self.val_pitch))), min_pwm, max_pwm)
-        pwm_thruster_8 = self.constrain(1500 + ((self.pwm_heave) - ((self.pwm_roll - self.val_roll) * back_kp) - ((self.pwm_pitch - self.val_pitch))), min_pwm, max_pwm) 
+        pwm_thruster_5 = self.constrain(1500 + (self.pwm_heave - self.get_offset(self.offset_heave)) + (self.pwm_roll - self.get_offset(self.offset_roll)) + (self.pwm_pitch - self.get_offset(self.offset_pitch)), min_pwm, max_pwm)
+        pwm_thruster_6 = self.constrain(1500 + (self.pwm_heave - self.get_offset(self.offset_heave)) - (self.pwm_roll - self.get_offset(self.offset_roll)) + (self.pwm_pitch - self.get_offset(self.offset_pitch)), min_pwm, max_pwm)
+        pwm_thruster_7 = self.constrain(1500 + (self.pwm_heave - self.get_offset(self.offset_heave)) + (self.pwm_roll - self.get_offset(self.offset_roll)) - (self.pwm_pitch - self.get_offset(self.offset_pitch)), min_pwm, max_pwm)
+        pwm_thruster_8 = self.constrain(1500 + (self.pwm_heave - self.get_offset(self.offset_heave)) - (self.pwm_roll - self.get_offset(self.offset_roll)) - (self.pwm_pitch - self.get_offset(self.offset_pitch)), min_pwm, max_pwm) 
             
         self.movement.heave_roll_pitch(pwm_thruster_5, pwm_thruster_6, pwm_thruster_7,pwm_thruster_8)
 
+    # Stabilize roll, pitch, yaw and depth using PID control
     def stabilize_roll(self, error):
         self.pwm_roll = self.pid_roll(error)
 
@@ -237,11 +236,24 @@ class Subscriber():
         if data.type == 'STOP':
             self.movement.stop()
 
-    def callback_is_start(self, data):
+    def stabilize(self):
+        self.heave_roll_pitch()
+        self.surge_sway_yaw()
+
+    def callback_is_start(self, data: Bool):
+        self.is_pre_calibrating = not data.data
+
+        # Wait for a secs to await sensor value changes / spikes after pre calibrating
+        if not self.is_pre_calibrating and self.start_time + self.param_arming_duration > rospy.get_time():
+            rospy.loginfo('READY TO DIVE...')
+            return
+
+        # Condition for pre calibrating
         if data.data:
-            self.heave_roll_pitch()
-            self.surge_sway_yaw()
+            self.stabilize()
         else:
+            self.start_time = rospy.get_time()
+            self.pre_calibrate()
             self.movement.stop()
 
         self.movement.publish()
